@@ -27,7 +27,8 @@
 
 - **채택: `gh` CLI 인증** — `gh auth login -h github.com -w`(웹 브라우저 디바이스 플로우)로 로그인.
   토큰은 **OS keyring** 에 보관되어 파일에 남지 않는다([`git-setup.md §3`](./git-setup.md) 1순위 권장 방식).
-- 활성 계정: `NNNano116` (keyring) / **토큰 스코프**: `repo`, `read:org`, `gist`.
+- 활성 계정: `NNNano116` (keyring) / **토큰 스코프**: `repo`, `read:org`, `gist`, **`workflow`**.
+  (`workflow` 는 `.github/workflows/*` 푸시에 필요 — `gh auth refresh -h github.com -s workflow` 로 2026-06-22 추가.)
 - `.env` 의 `GITHUB_TOKEN` 은 **비워둠** — 푸시 인증을 gh 가 담당하므로 PAT 불필요(백업이 필요할 때만 fine-grained 최소권한 토큰을 채운다).
 
 > 재인증이 필요하면: `gh auth login -h github.com -w` → 표시된 코드를 https://github.com/login/device 에 입력.
