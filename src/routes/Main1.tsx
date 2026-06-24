@@ -1018,9 +1018,13 @@ export default function Main1() {
             좌상단으로 올라오며 여기로 핸드오프(페이드 크로스). // works 처럼 섹션 헤딩 역할. */}
         <div className="seg__inner seg__inner--resume">
           <p className="seg__eyebrow">// profile</p>
-          {/* 섹션 타이틀 = 명칭(다국어 순환, 첫 문장). 스크롤 도착 시 단어별 rise(1회), 이후 언어는
-              보이는 상태로 텍스트만 순환 → 항상 보임(리셋으로 인한 사라짐 없음). */}
-          <h2 className="seg__title seg__title--name">{renderTitle(titleIdx, true)}</h2>
+          {/* 섹션 타이틀 = 명칭(다국어 순환, 첫 문장). 스크롤 도착 + 매 언어 전환마다 단어별 rise
+              (페이지1과 동일한 titleIn 방식). 페이지2에선 3D 렌더가 스킵되어 전환이 매끄럽게 재생됨. */}
+          <h2
+            className={`seg__title seg__title--name ${titleIn ? 'main1__title--in' : 'main1__title--reset'}`}
+          >
+            {renderTitle(titleIdx, true)}
+          </h2>
           <div className="resume-grid">
             {RESUME.map((c) => (
               <article className="card" key={c.key} tabIndex={0}>

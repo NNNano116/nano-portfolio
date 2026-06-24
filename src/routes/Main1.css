@@ -247,9 +247,9 @@
   opacity: 1;
   transform: none;
 }
-/* 섹션(2p): 스크롤 도착(.is-settled) 시 단어별 rise(1회). 이후 보인 채 텍스트만 순환(리셋 없음→항상 보임).
-   전환 전엔 숨김(이중 노출 방지). */
-.main1.is-settled .seg__title--name .main1__title-word {
+/* 섹션(2p): 스크롤 도착(.is-settled) + 매 언어 전환(--in)마다 단어별 rise(페이지1과 동일).
+   전환 순간 --reset 으로 즉시 숨김 → 다음 프레임 --in 으로 단어별 스태거 rise. 전환 전엔 숨김(이중 노출 방지). */
+.main1.is-settled .seg__title--name.main1__title--in .main1__title-word {
   opacity: 1;
   transform: none;
 }
