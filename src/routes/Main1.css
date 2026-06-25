@@ -679,6 +679,185 @@
   background: transparent;
 }
 
+/* ════════════════════════════════════════════════════════════════
+   디자인 이력서 (// profile) — 자기소개 + 2단(좌 연락처·스킬 / 우 경력·학력·교육)
+   PC~큰 태블릿 2단 / 작은 태블릿~모바일(≤768) 세로. 도착(.is-settled) 시 블록별 순차 등장.
+   ──────────────────────────────────────────────────────────────── */
+.resume__intro {
+  max-width: 56ch;
+  margin: 0 0 clamp(28px, 4vw, 48px);
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.65;
+  color: #51617e;
+}
+.resume {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.82fr) 1.5fr;
+  gap: clamp(28px, 4vw, 72px);
+  align-items: start;
+}
+.resume__col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(26px, 3.4vw, 44px);
+}
+.resume__col--left {
+  position: relative;
+}
+.resume__block {
+  /* 순차 등장 */
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 0.09s);
+}
+.resume__intro {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.55s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 0.09s);
+}
+.main1.is-settled .resume__block,
+.main1.is-settled .resume__intro {
+  opacity: 1;
+  transform: none;
+}
+
+/* 섹션 라벨 — 작은 대문자 + 좌측 강조 바 */
+.resume__h {
+  position: relative;
+  margin: 0 0 1.1em;
+  padding-left: 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6b7b97;
+}
+.resume__h::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  bottom: 0.05em;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(#00aeff, #3b82f6);
+}
+
+/* 연락처 — key / value 행 */
+.resume__contact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+.resume__contact li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  padding-bottom: 0.7em;
+  border-bottom: 1px solid #e1e6f0;
+  font-size: 14px;
+}
+.resume__contact li:last-child {
+  border-bottom: none;
+}
+.resume__k {
+  font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #93a0ba;
+}
+.resume__v {
+  color: #1c2740;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* 스킬 — 칩 */
+.resume__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.resume__skill {
+  font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: 12px;
+  color: #29405f;
+  background: rgba(0, 130, 220, 0.08);
+  border: 1px solid rgba(0, 130, 220, 0.2);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+/* 경력·학력·교육 — 세로 타임라인 */
+.resume__timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border-left: 1.5px solid #d7dde9;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 2vw, 24px);
+}
+.resume__entry {
+  position: relative;
+}
+.resume__entry::before {
+  content: '';
+  position: absolute;
+  left: calc(-18px - 0.75px - 4.5px);
+  top: 0.35em;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid #00aeff;
+}
+.resume__entry-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8em;
+  flex-wrap: wrap;
+}
+.resume__org {
+  font-size: clamp(15px, 1.7vw, 18px);
+  font-weight: 700;
+  color: #131d31;
+}
+.resume__period {
+  font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: 12px;
+  color: #8c99b3;
+  white-space: nowrap;
+}
+.resume__role {
+  margin: 0.25em 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #46566f;
+}
+.resume__desc {
+  margin: 0.4em 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #7886a0;
+}
+
+/* 작은 태블릿~모바일: 2단 → 세로 1단 */
+@media (max-width: 768px) {
+  .resume {
+    grid-template-columns: 1fr;
+    gap: clamp(24px, 5vw, 36px);
+  }
+}
+
 /* 3) 개발 · 포트폴리오 — 배경 투명(격자는 라이트 backdrop 레이어가 일관되게 담당) */
 .seg--work {
   background: transparent;
