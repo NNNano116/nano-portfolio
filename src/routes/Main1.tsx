@@ -106,10 +106,14 @@ const LASER_DEG = 63.1
 // 이력(2페이지) = 디자인 이력서. 좌: 연락처·스킬 / 우: 경력·학력·교육 타임라인.
 const RESUME_INTRO = {
   lead: '안녕하세요, 4년차 백엔드 개발자 김준영입니다.',
-  // 본문을 절 단위로 분리 → "단일 기능…" 절이 새 줄에서 시작(자연스러운 줄 끊김).
+  // 의미 단위(어절 그룹)로 분리 — 각 단위는 한 덩어리로 유지하고 줄바꿈은 단위 '사이'에서만(자연스러운 끊김).
   body: [
-    'AI를 활용해 기획·디자인·개발·운영을 아우르는 엔드투엔드(End-to-End) 실무 프로젝트를 담당했고,',
-    '단일 기능 구현을 넘어 프로젝트 전체 워크플로우와 아키텍처를 설계하는 개발을 지향합니다.',
+    'AI를 활용해',
+    '기획·디자인·개발·운영을 아우르는',
+    '엔드투엔드(End-to-End) 실무 프로젝트를 담당했고,',
+    '단순 기능 구현을 넘어',
+    '프로젝트 전체의 워크플로우와',
+    '아키텍처를 설계할 수 있는 개발을 지향합니다.',
   ],
 }
 const RESUME_CONTACT: { k: string; v: string }[] = [
@@ -1130,9 +1134,12 @@ export default function Main1() {
           <div className="resume__intro" style={{ ['--i' as string]: 0 }}>
             <p className="resume__intro-lead">{RESUME_INTRO.lead}</p>
             <p className="resume__intro-body">
-              {RESUME_INTRO.body[0]}
-              <br />
-              {RESUME_INTRO.body[1]}
+              {RESUME_INTRO.body.map((u, i) => (
+                <Fragment key={i}>
+                  {i > 0 ? ' ' : null}
+                  <span className="resume__unit">{u}</span>
+                </Fragment>
+              ))}
             </p>
           </div>
           <div className="resume">

@@ -571,9 +571,15 @@
   box-sizing: border-box; /* max-width 가 padding 포함 → 좌측 정렬 일치 */
   max-width: 1000px;
   margin: 0 auto;
-  /* 상하 여백 — 한 화면에 모든 이력이 들어오도록 적당히 축소(좌우는 유지) */
-  padding: clamp(40px, 6vw, 76px) clamp(20px, 5vw, 56px);
+  /* 글라스 내부 상/하 여백 — 너무 빡빡하지 않게 자연스러운 숨 공간(좌우는 유지) */
+  padding: clamp(40px, 4.4vw, 58px) clamp(20px, 5vw, 56px) clamp(48px, 5.6vw, 76px);
   text-align: left;
+}
+/* 자기소개·포트폴리오 섹션은 '고정 헤더(크롬) 아래'에서 시작 → 글라스·// profile 이 헤더와 겹치지 않음.
+   (헤더 ≈ 모바일 64 / PC 80px) */
+.seg--resume,
+.seg--work {
+  padding-top: clamp(56px, 5vw, 62px);
 }
 /* 이력: 자기소개 섹션 — 명칭이 시작하는 영역부터 구성되도록 글라스 영역을 더 넓게(가로↑).
    카드는 위에서 내려온 명칭 아래에서 시작하도록 상단 여백 확대. */
@@ -774,7 +780,17 @@
   font-size: clamp(14px, 1.45vw, 16.5px);
   line-height: 1.72;
   color: #56657f;
-  word-break: keep-all; /* 한글 어절 단위 줄바꿈 → 자연스러운 줄 끊김 */
+  word-break: keep-all; /* 한글 어절 단위 줄바꿈 */
+}
+/* 각 의미 단위는 한 덩어리로 유지 → 줄바꿈은 단위 '사이'에서만(단위가 통째로 다음 줄로). */
+.resume__unit {
+  white-space: nowrap;
+}
+@media (max-width: 768px) {
+  /* 좁은 모바일에선 긴 단위가 넘칠 수 있어 단위 내부 자유 줄바꿈 허용(keep-all 로 어절 단위) */
+  .resume__unit {
+    white-space: normal;
+  }
 }
 .resume {
   display: grid;
@@ -942,18 +958,18 @@
   vertical-align: middle;
   white-space: nowrap;
 }
+/* org+role(왼쪽) ↔ 기간(오른쪽). 넓으면 'org · role  …  기간' 한 줄, 좁아지면 role 이 아래로 내려가고
+   org·기간은 윗줄 유지(기간이 아래로 안 감). head 가 남은 폭을 받아 내부에서 role 만 줄바꿈. */
 .resume__entry-top {
   display: flex;
-  align-items: baseline;
+  flex-wrap: nowrap;
+  align-items: baseline; /* 기간이 org(첫 줄) 베이스라인에 정렬 → role 이 아래로 내려가도 기간은 윗줄 */
   justify-content: space-between;
-  gap: 0.25em 0.9em;
-  flex-wrap: wrap;
+  column-gap: 0.9em;
 }
-/* org + role 을 한 줄로(회사명 옆 직책 / 학점은행제 옆 전공 / 전문가반 옆 기관) */
 .resume__head {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: wrap;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .resume__org {
   font-size: clamp(15px, 1.6vw, 17px);
@@ -961,6 +977,7 @@
   color: #131d31;
 }
 .resume__period {
+  flex: 0 0 auto;
   font-family: var(--mono, ui-monospace, Consolas, monospace);
   font-size: 12px;
   color: #8c99b3;
@@ -993,15 +1010,13 @@
   border-radius: 50%;
   background: #9aa6bd;
 }
+/* role — org 옆 인라인(넓을 때) / 좁으면 통째로 아랫줄. 구분 위해 작은 좌측 여백 + 옅은 색. */
 .resume__role {
+  margin-left: 0.55em;
   font-size: 13.5px;
   font-weight: 500;
-  color: #5d6c85;
-}
-.resume__role::before {
-  content: '·';
-  margin: 0 0.5em;
-  color: #aab3c6;
+  color: #6b7890;
+  white-space: nowrap;
 }
 .resume__desc {
   margin: 0.4em 0 0;
