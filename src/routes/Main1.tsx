@@ -131,20 +131,37 @@ const RESUME_SKILLS = [
   'React Native',
   'Flutter',
 ]
-type ResumeEntry = { org: string; role: string; period: string; desc: string }
+type ResumeEntry = {
+  org: string
+  role: string
+  period: string
+  desc?: string
+  bullets?: string[]
+  ongoing?: boolean
+}
 const RESUME_CAREER: ResumeEntry[] = [
   {
     org: '주식회사 윈카드 (WINCARD)',
     role: '개발 팀장 / 대리',
     period: '2022.01 — 2026.07',
-    desc: '주요 업무·성과 (추후 채움)',
+    bullets: [
+      '사내 솔루션 윈카드·빅토리월렛 외 운영 플랫폼 신규 개발 및 유지보수',
+      '인하우스 신규 프로젝트 및 외부 고객사 에이전시 웹/앱 프로젝트 개발',
+      'Claude Code 기반 AI 에이전트 바이브 코딩 프로젝트 진행',
+    ],
   },
 ]
 const RESUME_EDU: ResumeEntry[] = [
-  { org: '학교명', role: '전공', period: '2018 — 2022', desc: '(추후 채움)' },
+  { org: '학점은행제', role: '컴퓨터공학 전공', period: '2026.04 — 2027.02 (예정)', ongoing: true },
+  { org: '학점은행제', role: '정보처리 전공', period: '2021.04 — 2023.08' },
 ]
 const RESUME_TRAINING: ResumeEntry[] = [
-  { org: '부트캠프 / 과정명', role: '수료', period: '2023', desc: '(추후 채움)' },
+  {
+    org: '빅데이터 UI 전문가반',
+    role: '코리아IT아카데미',
+    period: '2021.04 — 2021.09',
+    desc: '국비지원 교육 · 빅데이터 UI 교육 이수',
+  },
 ]
 const RESUME_RIGHT: { h: string; entries: ResumeEntry[] }[] = [
   { h: '경력', entries: RESUME_CAREER },
@@ -1148,13 +1165,27 @@ export default function Main1() {
                   <h3 className="resume__h">{sec.h}</h3>
                   <ol className="resume__timeline">
                     {sec.entries.map((e, ei) => (
-                      <li className="resume__entry" key={e.org + ei}>
+                      <li
+                        className={`resume__entry${e.ongoing ? ' resume__entry--ongoing' : ''}`}
+                        key={e.org + ei}
+                      >
                         <div className="resume__entry-top">
-                          <span className="resume__org">{e.org}</span>
+                          <span className="resume__head">
+                            <span className="resume__org">{e.org}</span>
+                            <span className="resume__role">{e.role}</span>
+                            {e.ongoing && <span className="resume__badge">진행 중</span>}
+                          </span>
                           <span className="resume__period">{e.period}</span>
                         </div>
-                        <p className="resume__role">{e.role}</p>
-                        <p className="resume__desc">{e.desc}</p>
+                        {e.bullets ? (
+                          <ul className="resume__bullets">
+                            {e.bullets.map((b, bi) => (
+                              <li key={bi}>{b}</li>
+                            ))}
+                          </ul>
+                        ) : e.desc ? (
+                          <p className="resume__desc">{e.desc}</p>
+                        ) : null}
                       </li>
                     ))}
                   </ol>

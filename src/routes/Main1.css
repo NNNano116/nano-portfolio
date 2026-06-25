@@ -568,10 +568,11 @@
    ──────────────────────────────────────────────────────────────── */
 .seg__inner {
   position: relative;
-  box-sizing: border-box; /* max-width 가 padding 포함 → 고정 스테이지 타이틀과 좌측 정렬 일치 */
+  box-sizing: border-box; /* max-width 가 padding 포함 → 좌측 정렬 일치 */
   max-width: 1000px;
   margin: 0 auto;
-  padding: clamp(48px, 9vw, 120px) clamp(20px, 5vw, 56px);
+  /* 상하 여백 — 한 화면에 모든 이력이 들어오도록 적당히 축소(좌우는 유지) */
+  padding: clamp(40px, 6vw, 76px) clamp(20px, 5vw, 56px);
   text-align: left;
 }
 /* 이력: 자기소개 섹션 — 명칭이 시작하는 영역부터 구성되도록 글라스 영역을 더 넓게(가로↑).
@@ -596,7 +597,11 @@
 }
 /* 인플로우 섹션 타이틀(// profile + 명칭 / // works) — 섹션과 함께 스크롤 */
 .seg__head {
-  margin-bottom: clamp(22px, 3.6vw, 40px);
+  margin-bottom: clamp(14px, 2vw, 24px);
+}
+/* 명칭 아래 여백은 seg__head 가 담당 → 명칭 자체 하단 여백은 작게(한 화면에 들어오도록) */
+.seg__head .seg__title {
+  margin-bottom: clamp(6px, 1vw, 12px);
 }
 
 /* 우측 하단 '맨 위로' 고정 버튼 — 1→2 전환(--inv)에 맞춰 자연스럽게 생성/소멸 */
@@ -755,7 +760,7 @@
    ──────────────────────────────────────────────────────────────── */
 .resume__intro {
   max-width: 64ch;
-  margin: 0 0 clamp(30px, 4vw, 52px);
+  margin: 0 0 clamp(22px, 2.8vw, 34px);
 }
 .resume__intro-lead {
   margin: 0 0 0.55em;
@@ -780,7 +785,7 @@
 .resume__col {
   display: flex;
   flex-direction: column;
-  gap: clamp(26px, 3.4vw, 44px);
+  gap: clamp(20px, 2.6vw, 30px);
 }
 .resume__col--left {
   position: relative;
@@ -824,7 +829,7 @@
 /* 섹션 라벨 — 작은 대문자 + 좌측 강조 바 */
 .resume__h {
   position: relative;
-  margin: 0 0 1.1em;
+  margin: 0 0 0.8em;
   padding-left: 14px;
   font-size: 12.5px;
   font-weight: 700;
@@ -901,7 +906,7 @@
   border-left: 1.5px solid #d7dde9;
   display: flex;
   flex-direction: column;
-  gap: clamp(16px, 2vw, 24px);
+  gap: clamp(12px, 1.5vw, 16px);
 }
 .resume__entry {
   position: relative;
@@ -917,15 +922,41 @@
   background: #fff;
   border: 2.5px solid #00aeff;
 }
+/* 진행 중 항목: 타임라인 점을 채워 활성 표시 */
+.resume__entry--ongoing::before {
+  background: #00aeff;
+  box-shadow: 0 0 0 3px rgba(0, 174, 255, 0.16);
+}
+/* 진행 중 배지 — org 옆 작은 알약(하늘색 계열, 타임라인 점과 통일) */
+.resume__badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #0a82c4;
+  background: rgba(0, 174, 255, 0.12);
+  border: 1px solid rgba(0, 174, 255, 0.42);
+  border-radius: 999px;
+  padding: 1px 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
 .resume__entry-top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.8em;
+  gap: 0.25em 0.9em;
+  flex-wrap: wrap;
+}
+/* org + role 을 한 줄로(회사명 옆 직책 / 학점은행제 옆 전공 / 전문가반 옆 기관) */
+.resume__head {
+  display: inline-flex;
+  align-items: baseline;
   flex-wrap: wrap;
 }
 .resume__org {
-  font-size: clamp(15px, 1.7vw, 18px);
+  font-size: clamp(15px, 1.6vw, 17px);
   font-weight: 700;
   color: #131d31;
 }
@@ -935,11 +966,42 @@
   color: #8c99b3;
   white-space: nowrap;
 }
+/* 경력 주요 업무 — 간략 불릿 리스트 */
+.resume__bullets {
+  margin: 0.55em 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.32em;
+}
+.resume__bullets li {
+  position: relative;
+  padding-left: 13px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #5b6a83;
+  word-break: keep-all;
+}
+.resume__bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #9aa6bd;
+}
 .resume__role {
-  margin: 0.25em 0 0;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 500;
-  color: #46566f;
+  color: #5d6c85;
+}
+.resume__role::before {
+  content: '·';
+  margin: 0 0.5em;
+  color: #aab3c6;
 }
 .resume__desc {
   margin: 0.4em 0 0;

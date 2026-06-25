@@ -95,7 +95,8 @@
 - 구조: `.seg__head`(// profile + 명칭) → `.resume__intro`(자기소개 한 줄) → `.resume`(2단 그리드).
   - **좌(`.resume__col--left`)**: 연락처(Email·Phone·GitHub·Location) + 스킬(칩 11개).
   - **우(`.resume__col--right`)**: 경력·학력·교육 **세로 타임라인**(점 + org/period/role/desc).
-- 실데이터: `top9786@gmail.com` · `+82 10-9763-3007` · `경기 의왕시 오전동` · 스킬 11 · 경력 `주식회사 윈카드(WINCARD) / 개발 팀장·대리 / 2022.01–2026.07`. (학력·교육 placeholder)
+- 실데이터: `top9786@gmail.com` · `+82 10-9763-3007` · `경기 의왕시 오전동` · 스킬 11 · 경력 `윈카드(WINCARD)` · 학력 `학점은행제 컴퓨터공학(진행 중)/정보처리` · 교육 `빅데이터 UI 전문가반(코리아IT아카데미)`.
+- 타임라인 항목은 `ongoing` 플래그 지원 → **진행 중 배지**(`.resume__badge`) + 채워진 활성 점(`.resume__entry--ongoing::before`). `desc` 는 선택(없으면 미렌더).
 - 반응형: **≥769 = 좌/우 2열** / **≤768 = 세로 1열**(`.resume{grid-template-columns:1fr}`).
 - `box-sizing:border-box`로 `seg__inner` 가 max-width 1260 에 padding 포함 → 타이틀·콘텐츠 좌측 정렬 일치.
 
