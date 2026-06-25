@@ -608,7 +608,7 @@
 }
 .main1__stage-layer {
   position: absolute;
-  top: clamp(56px, 9vw, 116px);
+  top: clamp(56px, 8vw, 100px); /* = seg__inner 글라스 상단과 좌표 정렬(글라스가 타이틀 감쌈) */
   left: clamp(20px, 5vw, 56px);
   right: clamp(20px, 5vw, 56px);
 }
@@ -624,14 +624,15 @@
 .seg--resume .seg__inner,
 .seg--work .seg__inner {
   position: fixed;
-  top: clamp(126px, 15.5vw, 200px);
+  /* 글라스(::before)가 고정 스테이지 타이틀(// profile·명칭)까지 덮도록 위로 끌어올리고,
+     콘텐츠는 padding-top 으로 타이틀 아래에서 시작(글라스 = 타이틀 + 콘텐츠 전체를 감쌈). */
+  top: calc(clamp(56px, 8vw, 100px) - 46px);
   left: 0;
   right: 0;
   margin: 0 auto;
   max-width: 1260px;
-  /* 글라스(::before, inset 14~30)가 콘텐츠를 감싸도록 상하 여백 부여 */
-  padding-top: clamp(26px, 3.2vw, 40px);
-  padding-bottom: clamp(20px, 2.6vw, 36px);
+  padding-top: clamp(104px, 14vw, 134px);
+  padding-bottom: clamp(28px, 3vw, 40px);
   pointer-events: none;
 }
 /* 콘텐츠 페이드는 .seg__fade 에만(글라스 ::before 는 seg__inner 에 남아 backdrop-filter 유지) */
@@ -659,6 +660,15 @@
 
 /* 작은 태블릿~모바일: 핀 해제 → 일반 흐름 스크롤. 고정 스테이지 대신 인플로우 타이틀 사용. */
 @media (max-width: 768px) {
+  /* 페이지 이동: JS 스냅(긴 콘텐츠를 못 읽게 함) 대신 CSS scroll-snap proximity.
+     → 섹션 경계 근처에선 페이지가 '딱' 맞춰지고(이동), 긴 이력 내부는 자유 스크롤(읽기). */
+  .main1 {
+    scroll-snap-type: y proximity;
+    scroll-padding-top: 0;
+  }
+  .seg {
+    scroll-snap-align: start;
+  }
   .main1__stage {
     display: none; /* 모바일은 고정 스테이지 끄고 섹션별 인플로우 타이틀 사용 */
   }
