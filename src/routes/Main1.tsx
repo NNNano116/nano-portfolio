@@ -243,52 +243,27 @@ export default function Main1() {
       TRIGGER_FRAC: 0.6, // 1→2 이동의 3/5 지점에서 다크↔라이트 플립
       LERP: 0.16, // 플립 애니메이션 속도(클수록 빠르게 전환)
     }
-    // 페이지 자동 정렬(스냅) 옵션: 멈춘(드래그를 뗀) 위치 기준.
-    //  방향(위/아래)으로 떠난 페이지에서 3/10 이상 이동했으면 그 방향 페이지로, 미만이면 원래 페이지로.
-    const SNAP = {
-      THRESHOLD: 0.3, // 3/10 — 이상이면 이전/다음 페이지로 전환, 미만이면 원래 페이지로 복귀
-      DUR_FWD: 680, // 다음/이전 페이지로 보낼 때(남은 만큼 이동)
-      DUR_BACK: 480, // 원래 페이지로 복구할 때(살짝 빠르게)
-      IDLE: 120, // 스크롤/드래그가 멈춘 뒤 이 ms 후 판정(터치 관성 종료 감지)
-    }
+    // 페이지 정렬은 CSS scroll-snap(proximity)이 담당 → JS 스냅 제거(모든 화면 자연 스크롤).
     let cur = 0
     let target = 0
     let raf = 0
-    let snapRaf = 0
-    let idleTimer = 0
-    let lastY = el.scrollTop // 스크롤 방향 추적용
-    let dir = 1 // +1=아래로, -1=위로
 
     function geo() {
       const vh = el!.clientHeight || 1
       const resume = el!.querySelector('.seg--resume') as HTMLElement | null
       const rTop = resume ? resume.offsetTop : vh
-      const rH = resume ? resume.offsetHeight : vh
-      return { vh, rTop, rH }
-    }
-    // 페이지 상단들 = 스냅 지점: 히어로(0) · 이력(rTop) · 포트폴리오(wTop)
-    function snapPoints() {
       const work = el!.querySelector('.seg--work') as HTMLElement | null
-      const { rTop } = geo()
       const wTop = work ? work.offsetTop : rTop * 2
-      return [0, rTop, wTop]
+      return { vh, rTop, wTop }
     }
 
     function computeTarget() {
-      const { vh, rTop } = geo()
+      const { vh, rTop, wTop } = geo()
       // 3/5 지점 통과 = 라이트(1), 미만 = 다크(0). 스텝 + lerp = 애니메이션 플립.
       const trig = rTop * INV.TRIGGER_FRAC
       target = el!.scrollTop >= trig ? 1 : 0
       // 클릭 게이트: 색 전환(3/5)을 지나면 새 클릭 버스트 정지(복귀 시 자동 해제)
       gateRef.current = el!.scrollTop >= trig
-      // 2→3 전환: 이력→포트폴리오 거리에 따라 '연속' 크로스페이드(--work). 스크롤/드래그를 그대로
-      // 따라가 부드럽게 미리보기(이동) → 놓으면 스냅이 0/1 로 확정(페이지 전환). 갑작스런 flip 없음.
-      const work = el!.querySelector('.seg--work') as HTMLElement | null
-      const wTop = work ? work.offsetTop : rTop * 2
-      const workProg = clamp((el!.scrollTop - rTop) / Math.max(1, wTop - rTop))
-      el!.style.setProperty('--work', workProg.toFixed(4))
-      el!.classList.toggle('is-work', workProg > 0.5)
-      el!.classList.toggle('is-work-settled', workProg > 0.82)
       // 명칭(자기소개) 표시: 1~2페이지에선 보이고, 3페이지(포트폴리오)로 가면서 사라짐
       el!.style.setProperty(
         '--name-vis',
@@ -314,100 +289,44 @@ export default function Main1() {
       raf = cur === target ? 0 : requestAnimationFrame(tick)
     }
 
-    // 임계 스냅: 멈춘 위치가 히어로(0)↔이력(rTop) 사이면, 진행률에 따라 복구/완전전환.
-    function animateTo(to: number, dur: number) {
-      cancelAnimationFrame(snapRaf)
-      const from = el!.scrollTop
-      const dist = to - from
-      if (Math.abs(dist) < 1.5) return
-      animatingRef.current = true
-      let t0 = 0
-      const easeOut = (x: number) => 1 - Math.pow(1 - x, 3) // easeOutCubic(스프링처럼 감속)
-      const step = (now: number) => {
-        if (!t0) t0 = now
-        const p = Math.min(1, (now - t0) / dur)
-        el!.scrollTop = Math.round(from + dist * easeOut(p)) // 정수 라운딩 — 서브픽셀 드리프트 방지
-        if (p < 1) snapRaf = requestAnimationFrame(step)
-        else {
-          el!.scrollTop = to
-          lastY = to // 방향 추적 기준도 정렬 위치로
-          animatingRef.current = false
-        }
-      }
-      snapRaf = requestAnimationFrame(step)
-    }
-    // 멈춘 위치가 인접 두 페이지(lo↔hi) 사이면, '떠난 방향'에서 이동한 비율로 판정.
-    //  아래로 이동 중: lo 에서 hi 로 3/10 이상 갔으면 hi(다음), 미만이면 lo(원래) 복귀.
-    //  위로 이동 중: hi 에서 lo 로 3/10 이상 갔으면 lo(이전), 미만이면 hi(원래) 복귀.
-    function maybeSnap() {
-      if (animatingRef.current) return
-      // 모바일(≤768): 콘텐츠가 길어 일반 흐름 스크롤 → 스냅(특히 낮은 임계) 끄고 자유 스크롤.
-      if (window.innerWidth <= 768) return
-      const pts = snapPoints()
-      const y = el!.scrollTop
-      const EPS = 12 // 스냅점 근처면 정착으로 간주 — 미세 드리프트로 인한 재스냅(진동) 방지
-      for (const pt of pts) if (Math.abs(y - pt) <= EPS) return
-      if (y <= pts[0] || y >= pts[pts.length - 1]) return // 최상단/마지막 페이지 내부(자유 스크롤)
-      let lo = pts[0]
-      let hi = pts[pts.length - 1]
-      for (let i = 0; i < pts.length - 1; i++) {
-        if (y > pts[i] && y < pts[i + 1]) {
-          lo = pts[i]
-          hi = pts[i + 1]
-          break
-        }
-      }
-      const gap = hi - lo
-      if (gap < 1) return
-      // 2↔3(이력↔포트폴리오)은 콘텐츠가 고정 핀(스크롤해도 제자리)이라, '조금만' 움직여도 페이지 전환.
-      // 1↔2 는 큰 색반전 전환이라 조금 더 여유. (lo===pts[1]=rTop 이면 2↔3 구간)
-      const th = lo === pts[1] ? 0.1 : 0.18
-      if (dir > 0) {
-        // 아래로: lo(떠난 페이지)에서 얼마나 갔나
-        const moved = (y - lo) / gap
-        animateTo(moved >= th ? hi : lo, moved >= th ? SNAP.DUR_FWD : SNAP.DUR_BACK)
-      } else {
-        // 위로: hi(떠난 페이지)에서 얼마나 올라왔나
-        const moved = (hi - y) / gap
-        animateTo(moved >= th ? lo : hi, moved >= th ? SNAP.DUR_FWD : SNAP.DUR_BACK)
-      }
-    }
-
     function onScroll() {
-      const y = el!.scrollTop
-      if (y !== lastY) {
-        dir = y > lastY ? 1 : -1 // 스크롤/드래그 방향 기록
-        lastY = y
-      }
       computeTarget()
       if (!raf) raf = requestAnimationFrame(tick)
-      window.clearTimeout(idleTimer)
-      idleTimer = window.setTimeout(maybeSnap, SNAP.IDLE) // 멈춤 감지 후 판정
-    }
-    // 사용자가 다시 스크롤/드래그하면 진행 중인 스냅을 즉시 취소(둘이 scrollTop을 다투면 떨림 발생).
-    function cancelSnap() {
-      if (animatingRef.current) {
-        cancelAnimationFrame(snapRaf)
-        animatingRef.current = false
-        lastY = el!.scrollTop
-      }
     }
     computeTarget()
     cur = target
     apply(cur)
     el.addEventListener('scroll', onScroll, { passive: true })
-    el.addEventListener('wheel', cancelSnap, { passive: true })
-    el.addEventListener('touchstart', cancelSnap, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
       el.removeEventListener('scroll', onScroll)
-      el.removeEventListener('wheel', cancelSnap)
-      el.removeEventListener('touchstart', cancelSnap)
       window.removeEventListener('resize', onScroll)
-      window.clearTimeout(idleTimer)
       cancelAnimationFrame(raf)
-      cancelAnimationFrame(snapRaf)
     }
+  }, [])
+
+  // ── 콘텐츠 리빌 — .reveal 요소가 뷰포트에 들어오면 천천히 떠오르며 등장(.is-inview). 스크롤 인터랙션. ──
+  useEffect(() => {
+    const root = scrollRef.current
+    if (!root) return
+    const els = Array.from(root.querySelectorAll<HTMLElement>('.reveal'))
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach((e) => e.classList.add('is-inview'))
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const en of entries) {
+          if (en.isIntersecting) {
+            en.target.classList.add('is-inview')
+            io.unobserve(en.target) // 한 번만 등장
+          }
+        }
+      },
+      { root, rootMargin: '0px 0px -12% 0px', threshold: 0.12 },
+    )
+    els.forEach((e) => io.observe(e))
+    return () => io.disconnect()
   }, [])
 
   // ── 배경 레이저 캔버스(2D) — 3D 구체 캔버스 뒤에 깔린다 ──
@@ -1008,25 +927,6 @@ export default function Main1() {
         </button>
       </header>
 
-      {/* 2P/3P 고정 스테이지 타이틀 — 좌상단 고정. is-settled(2P 도착) 시 등장.
-          --work 로 「// profile 명칭」 ↔ 「// works 개발&포트폴리오」 제자리 크로스페이드(원페이지 전환 느낌). */}
-      <div className="main1__stage">
-        <div className="main1__stage-inner">
-          <div className="main1__stage-layer main1__stage-layer--profile">
-            <p className="seg__eyebrow">// profile</p>
-            <h2
-              className={`seg__title seg__title--name ${titleIn ? 'main1__title--in' : 'main1__title--reset'}`}
-            >
-              {renderTitle(titleIdx, true)}
-            </h2>
-          </div>
-          <div className="main1__stage-layer main1__stage-layer--works" aria-hidden="true">
-            <p className="seg__eyebrow">// works</p>
-            <h2 className="seg__title">개발 &amp; 포트폴리오</h2>
-          </div>
-        </div>
-      </div>
-
       {/* 자기소개 명칭 — .main1 직속(섹션 밖). z-index 6 으로 글라스 패널 '위'에 그려져 블러되지 않음.
           --inv 로 중앙(1p)↔좌상단(2p) 이동·축소·색 전환. 색 전환(3/5) 전엔 중앙 고정(fix). */}
       <div className="main1__hero" ref={heroRef}>
@@ -1110,8 +1010,9 @@ export default function Main1() {
             좌상단으로 올라오며 여기로 핸드오프(페이드 크로스). // works 처럼 섹션 헤딩 역할. */}
         {/* 제목(// profile 명칭)은 고정 스테이지 타이틀(.main1__stage)로 이동 — 2→3 제자리 모프용. */}
         <div className="seg__inner seg__inner--resume">
-          {/* 모바일(≤768) 전용 인플로우 타이틀 — 섹션과 함께 스크롤(데스크탑은 고정 스테이지가 담당). */}
-          <div className="seg__head seg__head--mobile">
+          {/* 인플로우 섹션 타이틀(// profile + 명칭) — 섹션과 함께 자연 스크롤. 1→2 전환 시 히어로 명칭이
+              여기로 핸드오프(좌상단). 다국어 순환 + 단어별 rise. */}
+          <div className="seg__head">
             <p className="seg__eyebrow">// profile</p>
             <h2
               className={`seg__title seg__title--name ${titleIn ? 'main1__title--in' : 'main1__title--reset'}`}
@@ -1122,13 +1023,13 @@ export default function Main1() {
           {/* .seg__fade = 콘텐츠 페이드 래퍼(--inv/--work). 글라스(::before)는 seg__inner 에 남겨
               backdrop-filter 가 격리되지 않도록(opacity 를 seg__inner 에 두면 블러가 사라짐). */}
           <div className="seg__fade">
-          {/* 디자인 이력서 — 자기소개 한 줄 + 2단(좌 프로필 / 우 경력). 도착 시 블록별 순차 등장(--i). */}
-          <p className="resume__intro" style={{ ['--i' as string]: 0 }}>
+          {/* 디자인 이력서 — 자기소개 한 줄 + 2단(좌 프로필 / 우 경력). 뷰포트 진입 시 천천히 등장(.reveal). */}
+          <p className="resume__intro reveal" style={{ ['--i' as string]: 0 }}>
             {RESUME_INTRO}
           </p>
           <div className="resume">
             <div className="resume__col resume__col--left">
-              <section className="resume__block" style={{ ['--i' as string]: 1 }}>
+              <section className="resume__block reveal" style={{ ['--i' as string]: 1 }}>
                 <h3 className="resume__h">연락처</h3>
                 <ul className="resume__contact">
                   {RESUME_CONTACT.map((c) => (
@@ -1139,7 +1040,7 @@ export default function Main1() {
                   ))}
                 </ul>
               </section>
-              <section className="resume__block" style={{ ['--i' as string]: 2 }}>
+              <section className="resume__block reveal" style={{ ['--i' as string]: 2 }}>
                 <h3 className="resume__h">스킬</h3>
                 <div className="resume__skills">
                   {RESUME_SKILLS.map((s) => (
@@ -1152,7 +1053,7 @@ export default function Main1() {
             </div>
             <div className="resume__col resume__col--right">
               {RESUME_RIGHT.map((sec, si) => (
-                <section className="resume__block" key={sec.h} style={{ ['--i' as string]: 3 + si }}>
+                <section className="resume__block reveal" key={sec.h} style={{ ['--i' as string]: 3 + si }}>
                   <h3 className="resume__h">{sec.h}</h3>
                   <ol className="resume__timeline">
                     {sec.entries.map((e, ei) => (
@@ -1176,17 +1077,21 @@ export default function Main1() {
 
       {/* ───────────── 3. 개발 · 포트폴리오(라이트) ───────────── */}
       <section className="seg seg--work" id="work">
-        {/* 제목(// works 개발&포트폴리오)은 고정 스테이지 타이틀(.main1__stage)로 이동(데스크탑).
-            모바일(≤768)은 아래 인플로우 타이틀이 섹션과 함께 스크롤. */}
+        {/* 인플로우 섹션 타이틀(// works 개발&포트폴리오) — 섹션과 함께 자연 스크롤. */}
         <div className="seg__inner">
-          <div className="seg__head seg__head--mobile">
+          <div className="seg__head">
             <p className="seg__eyebrow">// works</p>
             <h2 className="seg__title">개발 &amp; 포트폴리오</h2>
           </div>
           <div className="seg__fade">
           <div className="work-grid">
-            {SKILL_GROUPS.map((g) => (
-              <article className="work-card" key={g.title} tabIndex={0}>
+            {SKILL_GROUPS.map((g, gi) => (
+              <article
+                className="work-card reveal"
+                key={g.title}
+                tabIndex={0}
+                style={{ ['--i' as string]: gi }}
+              >
                 <span className="work-card__tag">stack</span>
                 <h3 className="work-card__h">{g.title}</h3>
                 <p className="work-card__desc">{g.desc}</p>
