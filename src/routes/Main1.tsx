@@ -1023,13 +1023,14 @@ export default function Main1() {
           {/* .seg__fade = 콘텐츠 페이드 래퍼(--inv/--work). 글라스(::before)는 seg__inner 에 남겨
               backdrop-filter 가 격리되지 않도록(opacity 를 seg__inner 에 두면 블러가 사라짐). */}
           <div className="seg__fade">
-          {/* 디자인 이력서 — 자기소개 한 줄 + 2단(좌 프로필 / 우 경력). 뷰포트 진입 시 천천히 등장(.reveal). */}
-          <p className="resume__intro reveal" style={{ ['--i' as string]: 0 }}>
+          {/* 디자인 이력서 — 자기소개 한 줄 + 2단(좌 프로필 / 우 경력).
+              2P 도착(.is-settled) 시 명칭 직후 이력이 차례로 '적히듯' 스태거 구성(--i). */}
+          <p className="resume__intro" style={{ ['--i' as string]: 0 }}>
             {RESUME_INTRO}
           </p>
           <div className="resume">
             <div className="resume__col resume__col--left">
-              <section className="resume__block reveal" style={{ ['--i' as string]: 1 }}>
+              <section className="resume__block" style={{ ['--i' as string]: 1 }}>
                 <h3 className="resume__h">연락처</h3>
                 <ul className="resume__contact">
                   {RESUME_CONTACT.map((c) => (
@@ -1040,7 +1041,7 @@ export default function Main1() {
                   ))}
                 </ul>
               </section>
-              <section className="resume__block reveal" style={{ ['--i' as string]: 2 }}>
+              <section className="resume__block" style={{ ['--i' as string]: 2 }}>
                 <h3 className="resume__h">스킬</h3>
                 <div className="resume__skills">
                   {RESUME_SKILLS.map((s) => (
@@ -1053,7 +1054,7 @@ export default function Main1() {
             </div>
             <div className="resume__col resume__col--right">
               {RESUME_RIGHT.map((sec, si) => (
-                <section className="resume__block reveal" key={sec.h} style={{ ['--i' as string]: 3 + si }}>
+                <section className="resume__block" key={sec.h} style={{ ['--i' as string]: 3 + si }}>
                   <h3 className="resume__h">{sec.h}</h3>
                   <ol className="resume__timeline">
                     {sec.entries.map((e, ei) => (

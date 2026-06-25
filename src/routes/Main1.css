@@ -784,8 +784,24 @@
   opacity: 1;
   transform: none;
 }
+/* 이력 콘텐츠는 IO(.reveal) 대신 '2P 도착(.is-settled)'에 동기화 — 명칭(// profile)이 뜬 직후
+   자기소개→연락처→스킬→경력… 순서로 차례로 '적히듯' 스태거 구성(고급스러운 전환 인터랙션). */
+.resume__intro,
+.resume__block {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.62s ease, transform 0.68s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(0.2s + var(--i, 0) * 0.11s); /* 명칭 먼저 → 콘텐츠가 뒤이어 차례로 */
+}
+.main1.is-settled .resume__intro,
+.main1.is-settled .resume__block {
+  opacity: 1;
+  transform: none;
+}
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .resume__intro,
+  .resume__block {
     transition: none;
   }
 }
