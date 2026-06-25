@@ -363,9 +363,10 @@ export default function Main1() {
     return () => io.disconnect()
   }, [])
 
-  // ── 데스크탑(wheel) 섹션 캡 — 한 번의 휠 제스처로 '한 섹션'만 이동(1P→2P 가 최대, 오버슈트 차단).
-  //    섹션이 뷰포트보다 크면(긴 이력) 그 안에서는 네이티브 자유 스크롤 허용 → 끝에서 다음 섹션으로 스냅.
-  //    터치(모바일)는 CSS proximity 가 담당(여기선 wheel 만). reduced-motion 이면 비활성. ──
+  // ── 섹션 캡 네비게이션 — 데스크탑(wheel) + 모바일(touch/drag) 동일 경험.
+  //    한 번의 제스처로 '한 섹션'만 이동(1P→2P 가 최대). 섹션이 뷰포트보다 크면(긴 이력) 내부는 자유 스크롤,
+  //    경계에서 더 가면 다음/이전 섹션으로 전환. 터치는 경계에서 드래그한 만큼 페이지가 따라오다
+  //    임계 이상이면 전환·미만이면 복귀(휠과 동일 느낌). reduced-motion 이면 비활성. ──
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
@@ -428,9 +429,94 @@ export default function Main1() {
         }
       }
     }
+    // ── 모바일 터치/드래그: 섹션 경계에서 드래그하면 페이지가 따라오다 임계 이상 시 다음/이전 섹션으로 전환,
+    //    미만이면 복귀. 섹션 내부(긴 이력)는 네이티브 자유 스크롤. ──
+    let tStartY = 0
+    let tStartScroll = 0
+    let tMode: '' | 'native' | 'next' | 'prev' = ''
+    let tDrag = 0
+    let tLastY = 0
+    let tLastT = 0
+    let tVel = 0 // px/ms (+ = 아래로 스크롤 의도)
+    let tAtTop = false
+    let tAtBottom = false
+    let tCur = { top: 0, bottom: 0 }
+    function onTouchStart(e: TouchEvent) {
+      if (e.touches.length !== 1) {
+        tMode = 'native'
+        return
+      }
+      cancelAnimationFrame(raf) // 진행 중 전환 즉시 취소(새 터치 우선)
+      animating = false
+      animatingRef.current = false
+      const vh = el!.clientHeight
+      tStartY = e.touches[0].clientY
+      tStartScroll = el!.scrollTop
+      tLastY = tStartY
+      tLastT = e.timeStamp
+      tVel = 0
+      tMode = ''
+      tDrag = 0
+      const secs = tops()
+      tCur = secs.find((s) => tStartScroll >= s.top - 4 && tStartScroll < s.bottom - 4) || secs[0]
+      tAtTop = tStartScroll <= tCur.top + 3
+      tAtBottom = tStartScroll + vh >= tCur.bottom - 3
+    }
+    function onTouchMove(e: TouchEvent) {
+      if (tMode === 'native' || e.touches.length !== 1) return
+      const vh = el!.clientHeight
+      const y = e.touches[0].clientY
+      const t = e.timeStamp
+      const dy = tStartY - y // 손가락 위로 = + (아래로 스크롤 의도)
+      const dt = t - tLastT
+      if (dt > 0) tVel = (tLastY - y) / dt
+      tLastY = y
+      tLastT = t
+      if (tMode === '') {
+        // 섹션 '경계'에서 더 나아가는 드래그만 전환으로 잡고, 그 외는 네이티브(내부 스크롤)
+        if (tAtBottom && dy > 4) tMode = 'next'
+        else if (tAtTop && dy < -4) tMode = 'prev'
+        else if (Math.abs(dy) > 4) tMode = 'native'
+        else return
+      }
+      if (tMode === 'next' || tMode === 'prev') {
+        e.preventDefault() // 네이티브 스크롤 차단 → 전환 직접 제어
+        tDrag = tMode === 'next' ? Math.max(0, dy) : Math.max(0, -dy)
+        const move = Math.min(tDrag * 0.42, vh * 0.55) // 저항감 있게 페이지가 따라옴
+        el!.scrollTop = tStartScroll + (tMode === 'next' ? move : -move)
+      }
+    }
+    function onTouchEnd() {
+      if (tMode !== 'next' && tMode !== 'prev') {
+        tMode = ''
+        return
+      }
+      const vh = el!.clientHeight
+      const secs = tops()
+      const DIST = vh * 0.14 // 14% 이상 드래그 → 전환
+      const FLICK = 1.3 // '빠른' 플릭(px/ms)만 거리 무관 전환(일반 드래그 속도엔 안 걸리게)
+      if (tMode === 'next') {
+        const next = secs.find((s) => s.top > tCur.top + 4)
+        if (next && (tDrag > DIST || tVel > FLICK)) animateTo(next.top)
+        else animateTo(tStartScroll) // 임계 미만 → 복귀
+      } else {
+        const prev = [...secs].reverse().find((s) => s.top < tCur.top - 4)
+        if (prev && (tDrag > DIST || tVel < -FLICK)) animateTo(prev.top)
+        else animateTo(tStartScroll)
+      }
+      tMode = ''
+    }
     el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('touchstart', onTouchStart, { passive: true })
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    el.addEventListener('touchend', onTouchEnd, { passive: true })
+    el.addEventListener('touchcancel', onTouchEnd, { passive: true })
     return () => {
       el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('touchstart', onTouchStart)
+      el.removeEventListener('touchmove', onTouchMove)
+      el.removeEventListener('touchend', onTouchEnd)
+      el.removeEventListener('touchcancel', onTouchEnd)
       cancelAnimationFrame(raf)
     }
   }, [])

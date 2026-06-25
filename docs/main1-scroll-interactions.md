@@ -68,10 +68,10 @@
   - 섹션 타이틀(2p)도 동일 `titleIn` + `.is-settled` 게이트로 매 전환 rise.
 - 로고(`.main1__logo-word`)는 **J·Young** → 1→2 전환 시 `· portfolio` 펼침 + 라이트에서 다크로.
 
-## 5. 페이지 이동 — 휠 섹션 캡(데스크탑) + CSS 스냅(모바일) ⭐⭐
+## 5. 페이지 이동 — JS 섹션 캡 (데스크탑 wheel + 모바일 touch, 동일 경험) ⭐⭐
 
-> 핵심 UX: **1P 에서 한 번의 휠/스크롤로는 2P 까지만** 이동(오버슈트 차단). 단, 이력이 뷰포트보다 길면 그 안에서는 자유 스크롤.
-> (이력 콘텐츠가 ~941px 로 뷰포트보다 커서, CSS `mandatory`=읽기불가 / `proximity`=오버슈트 둘 다 부적합 → JS 로 정밀 제어.)
+> 핵심 UX: **한 번의 제스처(휠/드래그)로는 한 섹션만** 이동(1P→2P 가 최대, 오버슈트 차단). 이력이 뷰포트보다 길면 그 안에서는 자유 스크롤.
+> CSS 스냅(`mandatory`=긴 콘텐츠 읽기불가 / `proximity`=오버슈트·전환 불안정)은 둘 다 부적합 → **데스크탑 wheel·모바일 touch 모두 JS 로 정밀 제어**(CSS 스냅 off).
 
 ### 5-1. 데스크탑(wheel) — JS 섹션 캡 (`Main1.tsx` wheel useEffect)
 - 섹션 top/bottom 목록 = `.seg--hero/.seg--resume/.seg--work` 의 `offsetTop`~`+offsetHeight`.
@@ -81,9 +81,17 @@
   - 따라서 **1P 에서 휠 다운 = 2P top 으로만 이동(캡)**, 한 제스처로 2→3 으로 못 넘어감.
 - `animateTo`: easeInOutCubic, `dur = min(720, 360 + |dist|·0.34)ms`. 전환 중(`animating || animatingRef.current`)엔 추가 휠 차단(끊김·오버슈트 방지).
 
-### 5-2. 모바일(touch) — CSS scroll-snap
-- 데스크탑은 `.main1 { scroll-snap-type: none }`(JS 가 제어). **모바일(≤768)** 만 `scroll-snap-type: y proximity`.
-- `.seg { scroll-snap-align: start; scroll-snap-stop: always }` → 경계에서 한 번에 한 섹션만 넘어감 + 긴 이력 내부 자유 스크롤.
+### 5-2. 모바일(touch/drag) — JS 섹션 캡 (데스크탑 wheel 과 동일 경험) ⭐
+> CSS `scroll-snap proximity` 는 ① 페이지가 드래그한 만큼만 움직이고 ② 임계 이상이어도 전환이 불안정했음 →
+> **JS 터치 핸들러**로 데스크탑 wheel 과 동일한 "한 제스처 = 한 섹션" 경험을 구현. CSS 스냅은 **전 화면 off**.
+- `touchstart`: 시작 scrollTop·섹션을 기록, 그 섹션의 **상단/하단 경계 여부**(`tAtTop`/`tAtBottom`) 판정. 진행 중 전환은 취소(새 터치 우선).
+- `touchmove`(passive:false): 첫 이동 방향으로 **모드 결정** —
+  - 경계에서 더 나가는 방향(하단+아래로 / 상단+위로) → `'next'`/`'prev'`: `preventDefault` 후 **페이지가 드래그를 따라 이동**(`tDrag·0.42`, 저항감, 최대 0.55vh).
+  - 그 외(섹션 내부) → `'native'`: 그대로 네이티브 자유 스크롤(긴 이력 읽기).
+- `touchend`: `tDrag > vh·0.14`(거리) 또는 `|tVel| > 1.3 px/ms`(빠른 플릭)면 → `animateTo(다음/이전 섹션 top)`(전환), **미만이면 `animateTo(시작 위치)`(복귀)**.
+- 결과: 모바일에서도 **경계 드래그 → 임계 이상이면 깔끔히 페이지 전환 / 미만이면 복귀**, 섹션 내부는 자유 스크롤(데스크탑 wheel 과 동일).
+  - 히어로(1P)의 3D 구체 터치 인터랙션과 공존(터치=섹션 전환은 이벤트, 구체=pointer 이벤트로 분리). 작은 드래그(<14%)는 전환 안 되어 구체 조작 여지 유지.
+- `animateTo`: easeInOutCubic, `dur = min(720, 360 + |dist|·0.34)ms`(wheel·touch 공용). `reduced-motion` 비활성.
 
 ### 5-3. 안내 클릭 / 맨 위로
 - 히어로 안내(`scrollToNext`): 다음(이력) 섹션으로 easeInOutCubic ~1.2s.
@@ -152,8 +160,9 @@
 | 카테고리 | 상수 | 값 |
 |----------|------|-----|
 | 색 전환 | `INV.TRIGGER_FRAC` / `LERP` | 0.6(3/5) / 0.16 |
-| 휠 캡 | `animateTo dur` | `min(720, 360+|dist|·0.34)ms` (easeInOutCubic) |
-| CSS 스냅 | 데스크탑 / 모바일 | `none`(JS) / `y proximity` + `.seg scroll-snap-stop:always` |
+| 섹션 캡 | `animateTo dur` | `min(720, 360+|dist|·0.34)ms` (easeInOutCubic, wheel·touch 공용) |
+| 터치 전환 임계 | 거리 / 플릭 / 따라옴 | `vh·0.14` / `1.3 px/ms` / `tDrag·0.42`(최대 0.55vh) |
+| CSS 스냅 | 전 화면 | `none` (JS wheel·touch 가 제어) |
 | 명칭 모프 | left edge / scale / 페이드 | 15vw / 0.5 / `(0.9-inv)*10` |
 | 다국어 | 언어 수 / 간격 / 단어 스태거 | 11 / 3.4s / `--w·0.08s` |
 | 리빌(이력) | 트리거 / delay | `.is-settled` / `0.2s + --i·0.11s` |

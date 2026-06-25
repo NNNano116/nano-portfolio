@@ -1031,10 +1031,10 @@
     grid-template-columns: 1fr;
     gap: clamp(24px, 5vw, 36px);
   }
-  /* 모바일: 이력이 길어 mandatory 면 못 읽음 → proximity(경계 정렬 + 내부 자유 스크롤).
-     stop:always 는 유지되어 한 번에 한 섹션만 넘어감. */
+  /* 모바일도 CSS 스냅 off — JS 터치 핸들러(Main1.tsx)가 섹션 경계 전환을 직접 제어(데스크탑 wheel 과 동일).
+     섹션 내부(긴 이력)는 네이티브 자유 스크롤. */
   .main1 {
-    scroll-snap-type: y proximity;
+    scroll-snap-type: none;
   }
 }
 
