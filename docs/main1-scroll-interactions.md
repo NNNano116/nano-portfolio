@@ -91,14 +91,20 @@
 
 ## 6. 2P 디자인 이력서 + 글라스 + 리빌 ⭐
 
-### 6-1. 디자인 이력서 (2단 / 세로 1단)
-- 구조: `.seg__head`(// profile + 명칭) → `.resume__intro`(자기소개 한 줄) → `.resume`(2단 그리드).
+### 6-1. 디자인 이력서 (2단 / 세로 1단) — 확정
+- 구조: `.seg__head`(// profile + 명칭) → `.resume__intro`(인사말 `-lead` + 본문 `-body`) → `.resume`(2단 그리드).
   - **좌(`.resume__col--left`)**: 연락처(Email·Phone·GitHub·Location) + 스킬(칩 11개).
-  - **우(`.resume__col--right`)**: 경력·학력·교육 **세로 타임라인**(점 + org/period/role/desc).
-- 실데이터: `top9786@gmail.com` · `+82 10-9763-3007` · `경기 의왕시 오전동` · 스킬 11 · 경력 `윈카드(WINCARD)` · 학력 `학점은행제 컴퓨터공학(진행 중)/정보처리` · 교육 `빅데이터 UI 전문가반(코리아IT아카데미)`.
-- 타임라인 항목은 `ongoing` 플래그 지원 → **진행 중 배지**(`.resume__badge`) + 채워진 활성 점(`.resume__entry--ongoing::before`). `desc` 는 선택(없으면 미렌더).
-- 반응형: **≥769 = 좌/우 2열** / **≤768 = 세로 1열**(`.resume{grid-template-columns:1fr}`).
-- `box-sizing:border-box`로 `seg__inner` 가 max-width 1260 에 padding 포함 → 타이틀·콘텐츠 좌측 정렬 일치.
+  - **우(`.resume__col--right`)**: 경력·학력·교육 **세로 타임라인**(점 + 한 줄 `org · role` + 우측 기간 + 불릿/desc).
+- 실데이터(확정): 연락처 `top9786@gmail.com`·`+82 10-9763-3007`·`경기 의왕시 오전동` / 스킬 11 /
+  경력 `주식회사 윈카드(WINCARD) · 개발 팀장·대리`(주요 업무 3불릿) / 학력 `학점은행제 · 컴퓨터공학 전공(진행 중)` `· 정보처리 전공` / 교육 `빅데이터 UI 전문가반 · 코리아IT아카데미`.
+- 타임라인 항목 필드: `org` `role` `period` + 선택 `desc`/`bullets`/`ongoing`.
+  - **org · role 한 줄**(`.resume__head` flex:1) — 좁아지면 **role 만 통째로 아랫줄**로 내려가고 **기간은 윗줄 유지**(period flex:0, baseline 정렬).
+  - `ongoing` → **진행 중 배지**(`.resume__badge`, 하늘색 #00aeff) + 채워진 활성 점(`.resume__entry--ongoing::before`).
+  - 경력 `bullets` → 간략 업무 불릿 리스트(`.resume__bullets`).
+- 자기소개 본문(`-body`)은 **의미 단위(`.resume__unit`)로 분리** → 단위 사이에서만 줄바꿈(PC `nowrap` / ≤768 `normal`).
+- **헤더 클리어런스**: `.seg--resume`/`.seg--work` 에 `padding-top: clamp(56~62)` → 글라스·// profile 이 **고정 헤더(모바일 64/PC 80px) 아래에서 시작**(겹침 방지). 글라스 내부 상/하 패딩은 자연스러운 숨 공간 확보.
+- 반응형: **≥769 = 좌/우 2열** / **≤768 = 세로 1열**(`.resume{grid-template-columns:1fr}`). PC에선 전체가 한 화면에 수렴(여백 압축).
+- `box-sizing:border-box`로 `seg__inner` 가 max-width 에 padding 포함 → 타이틀·콘텐츠 좌측 정렬 일치.
 
 ### 6-2. 글라스 패널 (`.seg__inner::before`)
 - 라이트 전환(`.is-light`) 시 부드럽게 등장. `backdrop-filter: blur(5px) saturate(1.18)` + 옅은 sheen → 레이저·격자가 살짝 흐릿하게 비침. 라운드+테두리.
@@ -109,7 +115,7 @@
 - **이력(2p)**: `.resume__intro`/`.resume__block` 은 **`.is-page-2`(이력이 '현재 페이지') + `.is-settled`** 게이트로 리빌.
   `transition-delay: calc(0.2s + var(--i)·0.11s)` → **명칭이 뜬 직후** 자기소개→연락처→스킬→경력… 순서로 **'적히듯' 구성**.
   - **`is-page-2`** = `scrollTop` 이 `[rTop·0.5, wTop − vh·0.15)` 일 때(JS). `is-settled`(색상)는 2P·3P 모두 true 라 3→2 재구성을 못 잡으므로 **별도 페이지 상태**가 필요.
-    → **1P→2P / 3P→2P 어느 방향이든** 2P 도착 시 다시 구성. transition 은 '보임' 상태에만 둬 떠날 땐 즉시 숨김(staggered fade-out·깜빡임 방지). 자기소개 본문은 인사말(`-lead`) + 설명 2절(`-body`, `<br>`)로 분리.
+    → **1P→2P / 3P→2P 어느 방향이든** 2P 도착 시 다시 구성. transition 은 '보임' 상태에만 둬 떠날 땐 즉시 숨김(staggered fade-out·깜빡임 방지). 자기소개는 인사말(`-lead`) + 본문(`-body`, 의미 단위 `.resume__unit`)로 구성.
 - **포트폴리오 카드(3p)**: `.reveal` + `IntersectionObserver`(`Main1.tsx`) → **뷰포트 진입 시** `.is-inview` 부여, 천천히 떠오르며 등장(`--i` 스태거). 카드 hover 리프트는 `.is-inview` 후에만(리빌 transform 충돌 방지).
   - IO root = `.main1`, `rootMargin: 0 0 -12% 0`, 한 번 등장 후 `unobserve`. `reduced-motion` 이면 즉시 표시.
 
