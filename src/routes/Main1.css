@@ -730,10 +730,10 @@
 /* // profile eyebrow 도 명칭 안착 후 함께 구성(살짝 늦게) */
 .seg--resume .seg__eyebrow {
   opacity: 0;
-  transition: opacity 0.45s ease 0.08s;
 }
-.main1.is-settled .seg--resume .seg__eyebrow {
+.main1.is-page-2.is-settled .seg--resume .seg__eyebrow {
   opacity: 1;
+  transition: opacity 0.45s ease 0.08s; /* transition 은 보임 상태에만 → 떠날 때 즉시(재구성 대비) */
 }
 .seg__title--name .main1__title-line {
   display: inline;
@@ -754,11 +754,22 @@
    PC~큰 태블릿 2단 / 작은 태블릿~모바일(≤768) 세로. 도착(.is-settled) 시 블록별 순차 등장.
    ──────────────────────────────────────────────────────────────── */
 .resume__intro {
-  max-width: 56ch;
-  margin: 0 0 clamp(28px, 4vw, 48px);
-  font-size: clamp(15px, 1.5vw, 18px);
-  line-height: 1.65;
-  color: #51617e;
+  max-width: 64ch;
+  margin: 0 0 clamp(30px, 4vw, 52px);
+}
+.resume__intro-lead {
+  margin: 0 0 0.55em;
+  font-size: clamp(17px, 1.9vw, 22px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #131d31;
+}
+.resume__intro-body {
+  margin: 0;
+  font-size: clamp(14px, 1.45vw, 16.5px);
+  line-height: 1.72;
+  color: #56657f;
+  word-break: keep-all; /* 한글 어절 단위 줄바꿈 → 자연스러운 줄 끊김 */
 }
 .resume {
   display: grid;
@@ -787,19 +798,20 @@
   opacity: 1;
   transform: none;
 }
-/* 이력 콘텐츠는 IO(.reveal) 대신 '2P 도착(.is-settled)'에 동기화 — 명칭(// profile)이 뜬 직후
-   자기소개→연락처→스킬→경력… 순서로 차례로 '적히듯' 스태거 구성(고급스러운 전환 인터랙션). */
+/* 이력 콘텐츠 리빌 — '2P 가 현재 페이지(.is-page-2)'일 때만 구성. 1P→2P / 3P→2P 어느 방향으로 와도
+   2P 에 도착하면 자기소개→연락처→스킬→경력… 순서로 '적히듯' 다시 구성(스태거).
+   transition 은 '보임' 상태에만 둬서, 떠날 때(3P/1P)는 즉시 숨김(staggered fade-out·깜빡임 방지). */
 .resume__intro,
 .resume__block {
   opacity: 0;
   transform: translateY(28px);
-  transition: opacity 0.62s ease, transform 0.68s cubic-bezier(0.2, 0.7, 0.2, 1);
-  transition-delay: calc(0.2s + var(--i, 0) * 0.11s); /* 명칭 먼저 → 콘텐츠가 뒤이어 차례로 */
 }
-.main1.is-settled .resume__intro,
-.main1.is-settled .resume__block {
+.main1.is-page-2.is-settled .resume__intro,
+.main1.is-page-2.is-settled .resume__block {
   opacity: 1;
   transform: none;
+  transition: opacity 0.62s ease, transform 0.68s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(0.2s + var(--i, 0) * 0.11s); /* 명칭 먼저 → 콘텐츠가 뒤이어 차례로 */
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal,

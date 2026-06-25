@@ -105,8 +105,10 @@
 - 타이틀(`.seg__head`)이 `seg__inner` 안에 인플로우로 있어 **글라스가 // profile·명칭+콘텐츠 전체를 감싼다**.
 
 ### 6-3. 리빌(스크롤하며 천천히 등장) ⭐
-- **이력(2p)**: `.resume__intro`/`.resume__block` 은 **`.is-settled`(2P 도착)에 동기화**된 스태거 리빌.
-  `transition-delay: calc(0.2s + var(--i)·0.11s)` → **명칭이 뜬 직후** 자기소개→연락처→스킬→경력… 순서로 **'적히듯' 구성**(2P 전환에 동기화된 고급 인터랙션).
+- **이력(2p)**: `.resume__intro`/`.resume__block` 은 **`.is-page-2`(이력이 '현재 페이지') + `.is-settled`** 게이트로 리빌.
+  `transition-delay: calc(0.2s + var(--i)·0.11s)` → **명칭이 뜬 직후** 자기소개→연락처→스킬→경력… 순서로 **'적히듯' 구성**.
+  - **`is-page-2`** = `scrollTop` 이 `[rTop·0.5, wTop − vh·0.15)` 일 때(JS). `is-settled`(색상)는 2P·3P 모두 true 라 3→2 재구성을 못 잡으므로 **별도 페이지 상태**가 필요.
+    → **1P→2P / 3P→2P 어느 방향이든** 2P 도착 시 다시 구성. transition 은 '보임' 상태에만 둬 떠날 땐 즉시 숨김(staggered fade-out·깜빡임 방지). 자기소개 본문은 인사말(`-lead`) + 설명 2절(`-body`, `<br>`)로 분리.
 - **포트폴리오 카드(3p)**: `.reveal` + `IntersectionObserver`(`Main1.tsx`) → **뷰포트 진입 시** `.is-inview` 부여, 천천히 떠오르며 등장(`--i` 스태거). 카드 hover 리프트는 `.is-inview` 후에만(리빌 transform 충돌 방지).
   - IO root = `.main1`, `rootMargin: 0 0 -12% 0`, 한 번 등장 후 `unobserve`. `reduced-motion` 이면 즉시 표시.
 
