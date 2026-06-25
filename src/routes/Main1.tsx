@@ -341,6 +341,8 @@ export default function Main1() {
     //  위로 이동 중: hi 에서 lo 로 3/10 이상 갔으면 lo(이전), 미만이면 hi(원래) 복귀.
     function maybeSnap() {
       if (animatingRef.current) return
+      // 모바일(≤768): 콘텐츠가 길어 일반 흐름 스크롤 → 스냅(특히 낮은 임계) 끄고 자유 스크롤.
+      if (window.innerWidth <= 768) return
       const pts = snapPoints()
       const y = el!.scrollTop
       const EPS = 12 // 스냅점 근처면 정착으로 간주 — 미세 드리프트로 인한 재스냅(진동) 방지
@@ -1108,6 +1110,18 @@ export default function Main1() {
             좌상단으로 올라오며 여기로 핸드오프(페이드 크로스). // works 처럼 섹션 헤딩 역할. */}
         {/* 제목(// profile 명칭)은 고정 스테이지 타이틀(.main1__stage)로 이동 — 2→3 제자리 모프용. */}
         <div className="seg__inner seg__inner--resume">
+          {/* 모바일(≤768) 전용 인플로우 타이틀 — 섹션과 함께 스크롤(데스크탑은 고정 스테이지가 담당). */}
+          <div className="seg__head seg__head--mobile">
+            <p className="seg__eyebrow">// profile</p>
+            <h2
+              className={`seg__title seg__title--name ${titleIn ? 'main1__title--in' : 'main1__title--reset'}`}
+            >
+              {renderTitle(titleIdx, true)}
+            </h2>
+          </div>
+          {/* .seg__fade = 콘텐츠 페이드 래퍼(--inv/--work). 글라스(::before)는 seg__inner 에 남겨
+              backdrop-filter 가 격리되지 않도록(opacity 를 seg__inner 에 두면 블러가 사라짐). */}
+          <div className="seg__fade">
           {/* 디자인 이력서 — 자기소개 한 줄 + 2단(좌 프로필 / 우 경력). 도착 시 블록별 순차 등장(--i). */}
           <p className="resume__intro" style={{ ['--i' as string]: 0 }}>
             {RESUME_INTRO}
@@ -1156,13 +1170,20 @@ export default function Main1() {
               ))}
             </div>
           </div>
+          </div>
         </div>
       </section>
 
       {/* ───────────── 3. 개발 · 포트폴리오(라이트) ───────────── */}
       <section className="seg seg--work" id="work">
-        {/* 제목(// works 개발&포트폴리오)은 고정 스테이지 타이틀(.main1__stage)로 이동. */}
+        {/* 제목(// works 개발&포트폴리오)은 고정 스테이지 타이틀(.main1__stage)로 이동(데스크탑).
+            모바일(≤768)은 아래 인플로우 타이틀이 섹션과 함께 스크롤. */}
         <div className="seg__inner">
+          <div className="seg__head seg__head--mobile">
+            <p className="seg__eyebrow">// works</p>
+            <h2 className="seg__title">개발 &amp; 포트폴리오</h2>
+          </div>
+          <div className="seg__fade">
           <div className="work-grid">
             {SKILL_GROUPS.map((g) => (
               <article className="work-card" key={g.title} tabIndex={0}>
@@ -1183,6 +1204,7 @@ export default function Main1() {
                 <span className="work-card__more">자세히&nbsp;→</span>
               </article>
             ))}
+          </div>
           </div>
         </div>
       </section>

@@ -624,19 +624,21 @@
 .seg--resume .seg__inner,
 .seg--work .seg__inner {
   position: fixed;
-  top: clamp(150px, 18vw, 232px);
+  top: clamp(126px, 15.5vw, 200px);
   left: 0;
   right: 0;
   margin: 0 auto;
   max-width: 1260px;
-  padding-top: 0;
-  padding-bottom: 0;
+  /* 글라스(::before, inset 14~30)가 콘텐츠를 감싸도록 상하 여백 부여 */
+  padding-top: clamp(26px, 3.2vw, 40px);
+  padding-bottom: clamp(20px, 2.6vw, 36px);
   pointer-events: none;
 }
-.seg--resume .seg__inner {
+/* 콘텐츠 페이드는 .seg__fade 에만(글라스 ::before 는 seg__inner 에 남아 backdrop-filter 유지) */
+.seg--resume .seg__fade {
   opacity: calc((var(--inv, 0) - 0.5) * 2 * (1 - var(--work, 0)));
 }
-.seg--work .seg__inner {
+.seg--work .seg__fade {
   opacity: calc(var(--inv, 0) * var(--work, 0));
 }
 /* 각 콘텐츠가 우위일 때만 클릭/호버 활성 */
@@ -650,14 +652,34 @@
   pointer-events: auto;
 }
 
-/* 작은 태블릿~모바일: 핀 해제 → 일반 흐름 스크롤(크로스페이드 없이 자연 스크롤) */
+/* 모바일(≤768) 인플로우 타이틀은 기본 숨김(데스크탑은 고정 스테이지가 담당) */
+.seg__head--mobile {
+  display: none;
+}
+
+/* 작은 태블릿~모바일: 핀 해제 → 일반 흐름 스크롤. 고정 스테이지 대신 인플로우 타이틀 사용. */
 @media (max-width: 768px) {
+  .main1__stage {
+    display: none; /* 모바일은 고정 스테이지 끄고 섹션별 인플로우 타이틀 사용 */
+  }
+  .seg__head--mobile {
+    display: block;
+    margin-bottom: clamp(24px, 5vw, 40px);
+  }
   .seg--resume .seg__inner,
   .seg--work .seg__inner {
     position: static;
-    opacity: 1;
-    padding-top: calc(clamp(48px, 9vw, 120px) + clamp(72px, 16vw, 108px));
+    padding-top: clamp(64px, 13vw, 96px);
+    padding-bottom: clamp(40px, 8vw, 64px);
     pointer-events: auto;
+  }
+  .seg--resume .seg__fade,
+  .seg--work .seg__fade {
+    opacity: 1; /* 모바일은 크로스페이드 없이 항상 표시 */
+  }
+  .seg--resume .seg__inner::before,
+  .seg--work .seg__inner::before {
+    opacity: 1; /* 모바일: 각 섹션 글라스 항상 표시(섹션은 라이트일 때만 화면에 들어옴) */
   }
 }
 
@@ -757,15 +779,16 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(5px) saturate(1.18);
   -webkit-backdrop-filter: blur(5px) saturate(1.18);
-  opacity: 0;
-  transform: translateY(8px) scale(0.992);
-  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform: none;
   pointer-events: none;
 }
-.main1.is-light .seg--resume .seg__inner::before,
-.main1.is-light .seg--work .seg__inner::before {
-  opacity: 1;
-  transform: none;
+/* 글라스 opacity 는 ::before 자신에 둬서 backdrop-filter(블러)가 유지되도록(ancestor opacity 금지).
+   콘텐츠(.seg__fade)와 동일한 --inv/--work 크로스페이드로 함께 페이드. */
+.seg--resume .seg__inner::before {
+  opacity: calc((var(--inv, 0) - 0.5) * 2 * (1 - var(--work, 0)));
+}
+.seg--work .seg__inner::before {
+  opacity: calc(var(--inv, 0) * var(--work, 0));
 }
 .seg__eyebrow {
   font-family: var(--mono, ui-monospace, Consolas, monospace);
