@@ -34,9 +34,9 @@
 |------|------|
 | 페이지(레이저+씬+물리+오버레이) | `src/routes/Main1.tsx` |
 | 스타일(레이아웃·크롬·배경·타이포·드래그 안내·반응형) | `src/routes/Main1.css` |
-| 라우트 등록 | `src/main.tsx` → `{ path: '/main-1', element: <Main1 /> }` (해시 라우터) |
-| 접속 URL | `…/#/main-1` (로컬·배포 모두 base `'/'`+해시) → [`local-run.md`](./local-run.md) |
-| 라이브 | https://nnnano116.github.io/#/main-1 |
+| 라우트 등록 | `src/main.tsx` → `{ path: '/', element: <Main1 /> }` (메인 승격). 구 `/main-1` 은 `<Navigate to="/" replace/>` 로 리다이렉트 (해시 라우터) |
+| 접속 URL | `…/#/` (루트, base `'/'`+해시) → [`local-run.md`](./local-run.md) |
+| 라이브 | https://nnnano116.github.io/ |
 
 ## 3. 의존성
 

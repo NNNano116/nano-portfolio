@@ -20,8 +20,8 @@
 
 | 경로 | 페이지 | 내용(초안) |
 |------|--------|-----------|
-| `/` | **Home** | Hero + 스크롤/슬라이더 혼재(첫인상·하이라이트) |
-| `/main-1` | **Main-1** (실험·메인 후보) | 3D 구체 클러스터 물리 히어로(three.js). 마우스 반발·드래그 휩쓸기·클릭 버스트·중심 응집(자석)·부유·흐름(완만 회전)·구체 충돌. 상세 정본 [`main1-hero.md`](./main1-hero.md). 정식 메인 채택 시 `/`로 승격 검토. → `src/routes/Main1.tsx` |
+| `/` | **Main-1 (메인 승격)** | 3D 구체 클러스터 물리 히어로(three.js) + 자기소개 3페이지 스크롤. 마우스 반발·드래그 휩쓸기·클릭 버스트·중심 응집(자석)·부유·흐름(완만 회전)·구체 충돌. 상세 정본 [`main1-hero.md`](./main1-hero.md)·[`main1-scroll-interactions.md`](./main1-scroll-interactions.md). → `src/routes/Main1.tsx` |
+| `/main-1` | (구 경로) | `<Navigate to="/" replace/>` 로 `/` 리다이렉트(OG·구 링크 호환). |
 | `/about` | **About** | 소개·스킬·경력 |
 | `/projects` | **Projects** | 프로젝트 카드·슬라이더 (스크롤 분량 多) |
 | `/contact` | **Contact** | 이메일·GitHub `NNNano116`·외부 링크 |
