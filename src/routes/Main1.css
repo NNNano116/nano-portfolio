@@ -13,10 +13,14 @@
   inset: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  /* 페이지 정렬 = CSS scroll-snap(아래 .main1 규칙: proximity + .seg scroll-snap-stop:always).
-     scroll-behavior 는 두지 않음 — 안내 클릭/맨위로는 JS 커스텀 이징(scrollToNext/scrollToTop). */
-  background: #0d181f; /* 폴백(실제 배경은 .main1__backdrop 이 그림) */
+  /* ⚠️ -webkit-overflow-scrolling:touch 제거 — iOS 에서 이 속성 + position:fixed 자식(backdrop)이
+     별도 합성 레이어를 만들어 ① 글라스 backdrop-filter 가 고정 배경을 못 샘플링(블러 안 보임)
+     ② 스크롤 시 고정 배경이 흔들려 .main1 다크 배경 노출 — 두 문제의 공통 원인. */
+  overscroll-behavior: none; /* 오버스크롤 바운스로 다크 배경(.main1) 노출 방지 */
+  /* 페이지 정렬은 JS(wheel·touch 섹션 캡). scroll-behavior 미사용(안내/맨위로는 JS 이징). */
+  /* 배경 폴백을 --inv 따라 다크↔라이트로 전환 → 오버스크롤·틈 등 어디가 노출돼도 테마색이 보임
+     (다크 1P 원본이 라이트 2P/3P 하단에 노출되던 문제 방지). 실제 배경은 .main1__backdrop. */
+  background: color-mix(in srgb, #0d181f, #e9eff7 var(--p));
   font-family: 'Pretendard Variable', 'Pretendard', 'Inter', system-ui, 'Segoe UI', sans-serif;
   color: #f0f0f0;
 }
@@ -692,22 +696,36 @@
   inset: clamp(14px, 2.6vw, 30px) clamp(8px, 1.6vw, 20px);
   z-index: -1;
   border-radius: clamp(18px, 2.6vw, 28px);
-  /* 아주 얇은 유리: 약한 블러 + 옅은 sheen → 레이저·격자가 살짝 흐릿하게(가려지지 않고) 비친다 */
+  /* 얇은 유리: 약한 블러 + 옅은 sheen. 블러가 약/미적용인 환경에서도 패널이 보이도록 sheen 살짝 ↑ */
   background: linear-gradient(
     150deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.035) 45%,
-    rgba(255, 255, 255, 0.01) 100%
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.07) 45%,
+    rgba(255, 255, 255, 0.03) 100%
   );
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow:
     0 30px 60px -34px rgba(20, 34, 60, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px) saturate(1.18);
-  -webkit-backdrop-filter: blur(5px) saturate(1.18);
+  backdrop-filter: blur(6px) saturate(1.18);
+  -webkit-backdrop-filter: blur(6px) saturate(1.18);
   transform: none;
   pointer-events: none;
+}
+/* backdrop-filter 미지원/비활성 환경(일부 모바일) 폴백 — 더 불투명한 프로스트 패널로 가독성 확보 */
+@supports not (
+  (backdrop-filter: blur(6px)) or (-webkit-backdrop-filter: blur(6px))
+) {
+  .seg--resume .seg__inner::before,
+  .seg--work .seg__inner::before {
+    background: linear-gradient(
+      150deg,
+      rgba(247, 250, 253, 0.66) 0%,
+      rgba(247, 250, 253, 0.5) 60%,
+      rgba(247, 250, 253, 0.42) 100%
+    );
+  }
 }
 /* 글라스 opacity 는 ::before 자신에 둬서 backdrop-filter(블러)가 유지되도록(ancestor opacity 금지).
    라이트 전환(.is-light) 시 부드럽게 등장. */
