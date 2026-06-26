@@ -10,7 +10,7 @@
 `git init`·`git remote`·`git push`·브랜치(`main`/`gh-pages`) · `git config user.*` ·
 `.gitignore` · `.env` · `.env.example` · `GITHUB_TOKEN`/PAT · `gh` CLI(`gh auth login`) ·
 credential helper · Actions Secrets · 자격증명·인증 · 원격 URL · 저장소 모델(사용자/프로젝트 페이지) ·
-**실제 연동 현황**(계정 `NNNano116`·레포 `nano-portfolio`·rename·연동 검증)
+**실제 연동 현황**(계정 `NNNano116`·레포 `NNNano116.github.io`(사용자 페이지)·rename·연동 검증)
 
 ## 2. 세부 도메인 목차
 

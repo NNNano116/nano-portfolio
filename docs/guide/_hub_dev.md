@@ -16,7 +16,7 @@ Node LTS · npm/pnpm · **멀티 라우트·페이지 구성(Home/About/Projects
 **`three.js`·WebGL·캔버스·물리(파티클·충돌·반발)·`main-1` 히어로·마우스 인터랙션(`useEffect` 애니메이션 루프)·`requestAnimationFrame`** ·
 **배경 레이저(2D 캔버스·대각선·63.1°·드리프트·모바일 우하단 커버)·드래그 안내 인디케이터(마우스 캡슐+네온 화살표·`stroke-dashoffset`·SVG 키프레임)·mattwilldev.com 레퍼런스·Playwright 픽셀 측정** ·
 **`nano-portfolio` 타이틀·서브타이틀 순환·키네틱 타이포(`token-in` blur+slide)·마우스 패럴럭스·구체 인트로 생성(scale·리플·`er` 충돌·펼침)·모바일 반응형(`clamp`·`vw`·`pointer:coarse`·입력환경별 라벨 CLICK·SCROLL/TOUCH & DRAG)·푸터 제거** ·
-**스크롤 인터랙션(3페이지 1-라우트 인플로우·`--inv` 다크↔라이트 색반전·3/5 트리거·듀얼레이어 크로스페이드)·명칭 모프+섹션 타이틀 핸드오프(`is-light`/`is-settled`)·다국어 11개 순환+단어별 rise(`titleIn`)·페이지 이동(섹션 캡 — 데스크탑 wheel·모바일 touch/drag 동일: 경계에서 임계 이상 드래그/휠 시 다음·이전 섹션 전환, 미만이면 복귀, 긴 콘텐츠 내부는 자유 스크롤)·디자인 이력서 2단(연락처·스킬 / 경력·학력·교육 타임라인)·라이트 글라스(`backdrop-filter`·opacity는 ::before 에)·리빌(이력 is-settled 스태거 / 카드 IntersectionObserver)·맨위로 버튼·J·Young 로고·반응형(구체 widthShrink·≤1300 서브타이틀·≤768 1열)**
+**스크롤 인터랙션(3페이지 1-라우트 인플로우·`--inv` 다크↔라이트 색반전·3/5 트리거·듀얼레이어 크로스페이드)·명칭 모프+섹션 타이틀 핸드오프(`is-light`/`is-settled`)·다국어 11개 순환+단어별 rise(`titleIn`)·페이지 이동(데스크탑 휠 '한 제스처=1섹션' 락 모델: 항상 `preventDefault`·휠 버스트당 1회·휠 멎을 때(150ms)까지 락 / 모바일 터치 '완전 제어' 드래그: `touch-action:none`·`scrollTop` 1:1 추종·드래그 16%/플릭 전환·미만 복귀·상단 갭 없음·한 제스처=최대 1페이지)·디자인 이력서 2단(연락처·스킬 / 경력·학력·교육 타임라인)·라이트 글라스(`backdrop-filter`·opacity는 ::before 에)·리빌(이력 is-settled 스태거 / 카드 IntersectionObserver)·맨위로 버튼·J·Young 로고·반응형(구체 widthShrink·≤1300 서브타이틀·≤768 1열)**
 
 ## 2. 세부 도메인 목차
 
@@ -45,9 +45,10 @@ Node LTS · npm/pnpm · **멀티 라우트·페이지 구성(Home/About/Projects
 - [ ] 정적 전제를 깨는 변경(서버 호출·런타임 비밀 등)은 운영 모델([CLAUDE.md §1](../../CLAUDE.md))과 충돌 → 먼저 점검.
 - [ ] AI 생성 코드도 **HMR 화면에서 실제 렌더 확인** 후 커밋.
 - [ ] 빌드 시점 차이를 보려면 `build` → `preview` 로 프로덕션 모드 점검 → 허브 **B**.
-- [ ] **로컬 접속 시 `base` 경로 붙이기**(`http://localhost:5173/nano-portfolio/`) — 루트는 빈 화면/404. 빌드·포트 상세 → [`local-run.md`](../local-run.md).
+- [ ] **로컬 접속은 루트**(`http://localhost:5173/`) — 사용자 페이지라 `base:'/'`. (구 프로젝트 페이지처럼 `/nano-portfolio/` 붙이면 404) 빌드·포트 상세 → [`local-run.md`](../local-run.md).
 - [ ] 포트는 **점유 시 자동 증가**할 수 있으니 기동 로그의 `Local:` URL 확인(5173 가정 금지).
 - [ ] **3D/물리/인트로(`main-1`)**: `three` 의존성은 [`mcp-setup.md` D-2](../mcp-setup.md) 버전표 우선 갱신. 언마운트 시 **rAF(구체·레이저·패럴럭스)**·리스너·geometry/material/renderer **dispose** 필수. 물리/인트로 튜닝은 [`main1-hero.md §5–§7·§14`](../main1-hero.md) 상수표와 동기화(인트로 충돌은 `er` 사용 — 버벅임 방지).
+- [ ] **페이지 이동 UX(`main-1` 스크롤)**: 데스크탑 휠은 **항상 `preventDefault`**(네이티브 관성이 경계 `animateTo` 와 충돌 → 2→3 튕김·3→2 미완료) + 휠 멎을 때까지 락(한 제스처=1섹션). 모바일은 **`touch-action:none` 유지**(빼면 안드로이드 stuck·상단 갭 재발) + JS 가 `scrollTop` 1:1 제어. 버튼(맨위로·안내)은 `wheelStopRef` 로 휠 애니/락 먼저 해제. 상세·상수 → [`main1-scroll-interactions §5-1·§5-2`](../main1-scroll-interactions.md) **먼저 갱신** 후 코드.
 - [ ] **레이저/타이포/드래그(`main-1`)**: 레퍼런스 **mattwilldev.com**. 레이저는 [`§9·§14`](../main1-hero.md)(우측 한계 `driftRange=W·1.08+H·0.55` 모바일 커버 주의), 타이틀/서브는 [`§8·§14`](../main1-hero.md), 드래그 안내는 [`§10·§14`](../main1-hero.md), 반응형은 [`§11`](../main1-hero.md) **먼저 갱신** 후 코드. 검증 시 **stale dev 서버 주의**(HMR 미반영 → 클린 포트 재기동).
 
 ## 4. 정본 / 소스

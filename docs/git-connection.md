@@ -72,7 +72,7 @@ git ls-files | grep -E "^\.env$"
 
 - **레포명 변경**: GitHub Settings → rename 후 `git remote set-url origin <새 URL>` + `.env` 의 `GIT_REMOTE_URL` + 본 문서 §1 갱신. (GitHub 가 구 URL 자동 리다이렉트)
 - **계정/이메일 변경**: `git config user.*` + `.env` + 본 문서 §3·§4 갱신.
-- **배포 셋업 시**: `base:'/nano-portfolio/'` 적용은 허브 **B** [`deploy.md`](./deploy.md) 에서 처리(여기서 값만 참조).
+- **배포 셋업 시**: `base:'/'`(사용자 페이지) 적용은 허브 **B** [`deploy.md`](./deploy.md) 에서 처리(여기서 값만 참조).
 - 규약 자체(원칙·보안)는 [`git-setup.md`](./git-setup.md) 에만 두고, 본 문서는 **현황 값**만 둔다(중복 금지).
 
 ## 7. 체크리스트 (현 상태)

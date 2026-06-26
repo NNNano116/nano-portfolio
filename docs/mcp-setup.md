@@ -68,7 +68,7 @@ npm install react-router       # 8.x (react-router-dom 아님)
 npm run dev                    # HMR dev 서버
 ```
 - 기본 플러그인은 `@vitejs/plugin-react`(Babel). SWC 원하면 템플릿 `react-swc-ts`.
-- 초기화 후 `vite.config.ts` 의 **`base: '/nano-portfolio/'`** 적용(프로젝트 페이지) → [`deploy.md §2`](./deploy.md)·[`git-connection.md`](./git-connection.md).
+- 초기화 후 `vite.config.ts` 의 **`base: '/'`** 적용(사용자 페이지 `NNNano116.github.io`) → [`deploy.md §2`](./deploy.md)·[`git-connection.md`](./git-connection.md).
 
 ## GitHub Actions 버전 (배포 — D-2 일부) ✅
 

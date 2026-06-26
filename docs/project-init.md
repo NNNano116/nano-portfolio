@@ -1,10 +1,11 @@
-# 프로젝트 초기화·설정 런북 (정본) — nano-portfolio
+# 프로젝트 초기화·설정 런북 (정본) — NNNano116.github.io
 
-> 이 프로젝트(`NNNano116/nano-portfolio`)를 **React + Vite + TypeScript** 정적 사이트로 **초기화·설정**하는
+> 이 프로젝트(`NNNano116/NNNano116.github.io`)를 **React + Vite + TypeScript** 정적 사이트로 **초기화·설정**하는
 > 실행 절차의 단일 출처(SSOT). 버전은 [`mcp-setup.md` D-2](./mcp-setup.md), 배포 현황은 [`git-connection.md`](./git-connection.md),
 > 운영 제약은 루트 [`CLAUDE.md §1`](../CLAUDE.md)을 따른다(값은 여기서 **복제하지 않고 참조**).
 
 **상태**: ✅ 실행 완료(2026-06-22) · **조회·검증에 context7 MCP 활용**(Vite 8 / React Router 패턴).
+> 🔄 **2026-06-26 사용자 페이지 전환**: 레포 `nano-portfolio` → `NNNano116.github.io` rename, `base:'/nano-portfolio/'` → `'/'`. 아래 값은 전환 후 기준. (전환 전 프로젝트 페이지 절차는 git 이력 참조)
 
 ---
 
@@ -12,8 +13,8 @@
 
 | 항목 | 값 | 출처 |
 |------|-----|------|
-| 저장소 모델 | 프로젝트 페이지 → `base: '/nano-portfolio/'` | [git-connection §1](./git-connection.md) |
-| 배포 URL | `https://NNNano116.github.io/nano-portfolio/` | 〃 |
+| 저장소 모델 | 사용자 페이지(레포 `NNNano116.github.io`) → `base: '/'` | [git-connection §1](./git-connection.md) |
+| 배포 URL | `https://NNNano116.github.io/` | 〃 |
 | Node | **24.17.0 LTS** 권장 (react-router 8 = `>=22.22.0`) | [mcp-setup D-2](./mcp-setup.md) |
 | 패키지 매니저 | npm | 〃 |
 | 라우팅 | 해시 라우팅(`createHashRouter`) | [deploy §4](./deploy.md) |
@@ -52,21 +53,21 @@ npm install react-router    # react-router-dom 아님(v7+ 통합 패키지)
 
 ## 3. `vite.config.ts` — base 적용 (가장 중요)
 
-프로젝트 페이지이므로 `base` 를 레포명에 맞춘다. (출처: Vite 공식 *Deploying a Static Site → GitHub Pages*, context7 조회)
+사용자 페이지(`<user>.github.io` 레포)이므로 `base` 는 루트 `'/'`. (출처: Vite 공식 *Deploying a Static Site → GitHub Pages*, context7 조회)
 
 ```ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-// 배포: https://NNNano116.github.io/nano-portfolio/  (프로젝트 페이지)
+// 배포: https://NNNano116.github.io/  (사용자 페이지)
 export default defineConfig({
-  base: '/nano-portfolio/',
+  base: '/',
   plugins: [react()],
 })
 ```
 
-> 사용자 페이지(`<user>.github.io` 레포)로 바꾸면 `base: '/'`. → [deploy §2](./deploy.md)
+> 프로젝트 페이지(`/<repo>/`)였다면 `base: '/<repo>/'`. 본 프로젝트는 2026-06-26 사용자 페이지로 전환됨. → [deploy §2](./deploy.md)
 
 ## 4. `src/main.tsx` — 해시 라우터
 
@@ -93,7 +94,7 @@ createRoot(document.getElementById('root')!).render(
 )
 ```
 
-- 경로는 URL 해시에 들어간다: `…/nano-portfolio/#/`, `…/nano-portfolio/#/about`. 새로고침 안전.
+- 경로는 URL 해시에 들어간다: `…/#/`, `…/#/about`. 새로고침 안전.
 - 에셋은 `import`/상대경로로만 — 절대경로 금지(`base`와 충돌) → [CLAUDE.md §1](../CLAUDE.md).
 
 ## 5. `.github/workflows/deploy.yml` — Actions 자동 배포
@@ -149,13 +150,13 @@ jobs:
 ## 6. 검증 ✔ (2026-06-22, Node 24.17.0 · react-router 8.0.1)
 
 ```sh
-npm run build      # dist/ 생성 — 에셋 경로가 /nano-portfolio/ 로 rewrite 되는지 확인
+npm run build      # dist/ 생성 — 에셋 경로가 / (루트) 기준으로 나오는지 확인
 npm run preview    # 프로덕션 빌드본 로컬 미리보기
 npm run dev        # HMR 개발 서버
 ```
 
 - [x] `npm run build` 성공 — `tsc -b`(타입체크) 통과 + `vite v8.0.16` 빌드(27 모듈, ~290ms).
-- [x] `dist/index.html` 에셋이 **`/nano-portfolio/assets/...`** 로 시작(base 적용 확인).
+- [x] `dist/index.html` 에셋이 **`/assets/...`** 로 시작(base `'/'` 적용 확인).
 - [ ] `preview`에서 `#/` 라우트가 새로고침 후에도 뜨는가(배포 전 최종 점검 권장).
 - [ ] 비밀값이 빌드 산출에 없는가(정적 = 클라이언트 노출) → [deploy §7](./deploy.md).
 
@@ -163,7 +164,7 @@ npm run dev        # HMR 개발 서버
 
 1. GitHub **Settings → Pages → Source: GitHub Actions**.
 2. `main` 에 push → Actions가 build→deploy.
-3. `https://NNNano116.github.io/nano-portfolio/` 확인.
+3. `https://NNNano116.github.io/` 확인.
 
 > 커밋·푸시는 사용자 확인 후 진행(이 런북은 로컬 파일 생성까지). → 허브 **C** [git-connection](./git-connection.md).
 

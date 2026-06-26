@@ -49,12 +49,11 @@ dist/assets/index-*.js        284.89 kB │ gzip: 90.38 kB
 
 | 서버 | 기본 포트 | 실제 접속 URL (이 프로젝트) |
 |------|-----------|------------------------------|
-| `vite` (dev) | **5173** | `http://localhost:5173/nano-portfolio/` |
-| `vite preview` | **4173** | `http://localhost:4173/nano-portfolio/` |
+| `vite` (dev) | **5173** | `http://localhost:5173/` |
+| `vite preview` | **4173** | `http://localhost:4173/` |
 
-> ⚠️ **`base` 경로 필수**: `vite.config.ts` 의 `base: '/nano-portfolio/'` 때문에 루트(`/`)가 아니라
-> **`/nano-portfolio/` 경로**로 접속해야 한다. `http://localhost:5173/` 만 열면 빈 화면/404 가 난다.
-> (사용자 페이지로 바꿔 `base:'/'` 가 되면 루트 접속 — → [`deploy.md §2`](./deploy.md))
+> ✅ **사용자 페이지 전환됨**: `vite.config.ts` 의 `base: '/'` 라 **루트(`/`) 로 접속**한다.
+> (이전 프로젝트 페이지 시절엔 `base:'/nano-portfolio/'` 라 `/nano-portfolio/` 경로가 필요했음 — → [`deploy.md §2`](./deploy.md))
 
 ### 3-2. 포트 바꾸기 / 옵션
 
@@ -78,7 +77,7 @@ npm run preview -- --port 5000      # preview 포트 변경
 **개발(권장 일상 루프):**
 
 ```bash
-npm run dev          # → http://localhost:5173/nano-portfolio/
+npm run dev          # → http://localhost:5173/
 ```
 HMR 로 `src/**` 저장 시 즉시 반영. Vibe 코딩 루프 → [`dev-stack.md §4`](./dev-stack.md).
 
@@ -86,13 +85,13 @@ HMR 로 `src/**` 저장 시 즉시 반영. Vibe 코딩 루프 → [`dev-stack.md
 
 ```bash
 npm run build        # dist/ 생성
-npm run preview      # → http://localhost:4173/nano-portfolio/
+npm run preview      # → http://localhost:4173/
 ```
 dev 와 동작이 다른 부분(에셋 경로·base·번들 분할 등)을 배포 전에 조기 발견.
 
 ## 5. 주의사항 ⚠️
 
-- [ ] **`base` 경로를 URL 에 붙여라**: `http://localhost:5173/nano-portfolio/`. 루트로 접속하면 빈 화면/404.
+- [ ] **`base:'/'`(사용자 페이지) — 루트로 접속**: `http://localhost:5173/`. (구 프로젝트 페이지처럼 `/nano-portfolio/` 를 붙이면 404)
 - [ ] **dev ≠ preview**: dev 는 소스 실시간, preview 는 **빌드된 `dist/`**. preview 로 본 게 실제 배포에 가깝다(반드시 `build` 먼저).
 - [ ] **빌드 실패의 1차 원인은 `tsc -b` 타입 에러**: `vite build` 가 아니라 타입체크에서 멈춘 건지 로그로 구분.
 - [ ] **포트는 점유 시 자동 증가**할 수 있다 — 5173 을 가정하지 말고 기동 로그의 `Local:` URL 을 확인.

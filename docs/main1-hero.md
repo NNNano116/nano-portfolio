@@ -35,8 +35,8 @@
 | 페이지(레이저+씬+물리+오버레이) | `src/routes/Main1.tsx` |
 | 스타일(레이아웃·크롬·배경·타이포·드래그 안내·반응형) | `src/routes/Main1.css` |
 | 라우트 등록 | `src/main.tsx` → `{ path: '/main-1', element: <Main1 /> }` (해시 라우터) |
-| 접속 URL | `…/nano-portfolio/#/main-1` (로컬·배포 모두 base+해시) → [`local-run.md`](./local-run.md) |
-| 라이브 | https://nnnano116.github.io/nano-portfolio/#/main-1 |
+| 접속 URL | `…/#/main-1` (로컬·배포 모두 base `'/'`+해시) → [`local-run.md`](./local-run.md) |
+| 라이브 | https://nnnano116.github.io/#/main-1 |
 
 ## 3. 의존성
 

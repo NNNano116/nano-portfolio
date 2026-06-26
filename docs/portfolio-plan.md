@@ -1,6 +1,6 @@
 # 포트폴리오 앱 구조·개발 계획 (정본)
 
-> `NNNano116/nano-portfolio` 의 **앱 자체 구조**(라우트·페이지·컴포넌트) 계획의 단일 출처(SSOT).
+> `NNNano116/NNNano116.github.io` 의 **앱 자체 구조**(라우트·페이지·컴포넌트) 계획의 단일 출처(SSOT).
 > 스택/버전은 [`mcp-setup.md` D-2](./mcp-setup.md), 초기화·설정 절차는 [`project-init.md`](./project-init.md),
 > 배포 함정은 [`deploy.md`](./deploy.md), 운영 제약은 [`CLAUDE.md §1`](../CLAUDE.md)을 **참조**(값 복제 금지).
 
@@ -26,7 +26,7 @@
 | `/projects` | **Projects** | 프로젝트 카드·슬라이더 (스크롤 분량 多) |
 | `/contact` | **Contact** | 이메일·GitHub `NNNano116`·외부 링크 |
 
-- 실제 URL 형태: `https://NNNano116.github.io/nano-portfolio/#/about` (해시 뒤 경로 → 새로고침 안전).
+- 실제 URL 형태: `https://NNNano116.github.io/#/about` (해시 뒤 경로 → 새로고침 안전).
 - 페이지 추가/변경 시 본 표와 `src/main.tsx` 라우트 배열을 함께 갱신.
 
 ## 3. 파일 구조 (예정)
@@ -53,7 +53,7 @@ src/
 
 > 설정 절차의 상세·코드 스니펫은 [`project-init.md`](./project-init.md)에 있다(여기서 중복하지 않음).
 
-1. **설정(B/D)**: `vite.config.ts` `base:'/nano-portfolio/'` · `react-router` 설치 · `main.tsx` 해시 라우터 + 멀티 라우트 · `.github/workflows/deploy.yml`.
+1. **설정(B/D)**: `vite.config.ts` `base:'/'`(사용자 페이지) · `react-router` 설치 · `main.tsx` 해시 라우터 + 멀티 라우트 · `.github/workflows/deploy.yml`.
 2. **구현(A)**: RootLayout(Nav) → 4개 페이지 → 슬라이더/카드 컴포넌트. 기본 Vite 템플릿(카운터·`/icons.svg` 절대경로) 정리.
 3. **검증·배포(B/C)**: `npm run preview` → push → Actions 빌드 → 실제 URL에서 라우팅/새로고침/에셋 점검. **Settings → Pages → Source = GitHub Actions**(사용자 1회 클릭).
 

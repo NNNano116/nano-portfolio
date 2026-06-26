@@ -18,7 +18,7 @@
 | OG 이미지 | `public/og-image.png` — **1200×630 메인 히어로 스크린샷**(한글 타이틀, `summary_large_image`) |
 | theme-color (light) | `#e9eff7` (글라스 블루) |
 | theme-color (dark) | `#0d181f` (히어로 네이비) |
-| 배포 URL(OG `og:url`) | `https://nnnano116.github.io/nano-portfolio/` |
+| 배포 URL(OG `og:url`) | `https://nnnano116.github.io/` (사용자 페이지) |
 
 > 위 문구·값을 바꾸려면 **이 표를 먼저 갱신**한 뒤 `index.html` 을 수정한다(SSOT 원칙, CLAUDE.md §4-4).
 
@@ -55,7 +55,7 @@
 - **한글 타이틀 고정**: 히어로 타이틀은 11개 언어를 3.4s 간격 순환(`TITLES`, 한글=인덱스 0). `prefers-reduced-motion: reduce` 면 순환이 멈춰 **인덱스 0(한글)에 고정**됨(`Main1.tsx` line 227) → 캡처 시 reduced-motion 강제.
 - **제작 방식(재현용)** — ⚠️ **실시간 GPU 렌더 필수**:
   1. dev 서버 기동(`npm run dev`).
-  2. chromium 을 `--headless=new --use-angle=d3d11 --force-prefers-reduced-motion --window-size=1200,630 --remote-debugging-port=9222` 로 띄워 `http://localhost:<port>/nano-portfolio/#/main-1` 로드.
+  2. chromium 을 `--headless=new --use-angle=d3d11 --force-prefers-reduced-motion --window-size=1200,630 --remote-debugging-port=9222` 로 띄워 `http://localhost:<port>/#/main-1` 로드.
   3. **CDP 로 ~6s 실대기 후** `Page.captureScreenshot`(scratchpad `capture.mjs`, Node 24 글로벌 `WebSocket`).
   - ❌ `--virtual-time-budget`(가상시간) 으로 캡처하면 물리·조명이 어두운 상태로 굳어 구체가 칙칙하게 나옴 → **반드시 실시간 rAF 가 도는 상태로 실대기**.
 - 톤/구도 변경이 필요하면 위 절차로 재캡처 후 교체.
@@ -64,9 +64,9 @@
 
 ## 4. 배포 경로 주의 (base 연계)
 
-- `vite.config.ts` `base:'/nano-portfolio/'` 이므로 **빌드 시 Vite 가 `index.html` 내 `/favicon.svg` → `/nano-portfolio/favicon.svg` 로 자동 재작성**한다. → `<link>` 의 루트 절대경로는 그대로 두면 됨(CLAUDE.md §1-4 정합).
-- 단, **OG/Twitter 의 `og:image`·`og:url` 은 절대 URL 직접 기입**(`https://nnnano116.github.io/nano-portfolio/...`) — 크롤러는 base 재작성을 못 받으므로 풀 URL 필수.
-- 개발 서버 확인 시 `http://localhost:<port>/nano-portfolio/favicon.svg` (base 경로 포함).
+- `vite.config.ts` `base:'/'`(사용자 페이지) 이므로 **빌드 시 `index.html` 내 `/favicon.svg` 가 그대로 루트 절대경로로 서빙**된다(`base` 재작성 없음). → `<link>` 의 루트 절대경로는 그대로 두면 됨(CLAUDE.md §1-4 정합). (이전 프로젝트 페이지 시절엔 `/nano-portfolio/favicon.svg` 로 재작성됐음)
+- 단, **OG/Twitter 의 `og:image`·`og:url` 은 절대 URL 직접 기입**(`https://nnnano116.github.io/...`) — 크롤러는 base 재작성을 못 받으므로 풀 URL 필수.
+- 개발 서버 확인 시 `http://localhost:<port>/favicon.svg` (base `'/'`).
 
 ---
 
