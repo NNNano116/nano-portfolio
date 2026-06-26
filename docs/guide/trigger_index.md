@@ -8,7 +8,7 @@
 | 대분류 | 가이드 허브 | 정본 / 소스 |
 |--------|------------|------------|
 | **A. 로컬 개발·React·Vibe 코딩** | [`_hub_dev.md`](./_hub_dev.md) | `dev-stack.md` · `local-run.md`(빌드·실행·포트 ✔) · `portfolio-plan.md`(앱 구조 계획 🟡) · `main1-hero.md`(main-1 3D 물리 히어로 ✅) · `main1-scroll-interactions.md`(스크롤 전환·색반전·다국어·페이지이동 UX[휠 락/터치 완전제어]·글라스 ✅) · `site-meta.md`(헤더·메타·파비콘 ✅) · `src/**`·`index.html`·`vite.config.*`·`package.json` |
-| **B. 빌드·GitHub Pages 정적 배포** | [`_hub_deploy.md`](./_hub_deploy.md) | `deploy.md` · `local-run.md`(로컬 빌드·preview 포트 ✔) · `vite.config.*`·`.github/workflows/`·`dist/` |
+| **B. 빌드·GitHub Pages 정적 배포** | [`_hub_deploy.md`](./_hub_deploy.md) | `deploy.md` · `local-run.md`(로컬 빌드·preview 포트 ✔) · **프로덕션 CSS 미니파이 함정(esbuild 가 `backdrop-filter` 등 프리픽스+표준 중복 제거 → dev↔prod 렌더 차이)** → [`main1-scroll-interactions.md §6-2a`](../main1-scroll-interactions.md) · `vite.config.*`·`.github/workflows/`·`dist/` |
 | **C. Git 연계·`.env` 자격정보** | [`_hub_git.md`](./_hub_git.md) | `git-setup.md`(규약) · `git-connection.md`(현황 ✅) · `.gitignore`·`.env.example` |
 | **D. MCP·도구 설정·버전 고정** ✅ | [`_hub_mcp.md`](./_hub_mcp.md) | `mcp-setup.md`(버전 SSOT) · `project-init.md`(초기화 런북) · `~/.claude.json` |
 
@@ -20,6 +20,8 @@
 | 첫 배포 셋업 | **B**(Actions·base) + **C**(원격·푸시·Secrets) |
 | 프로젝트 초기화 | **D**(스캐폴드·버전) + **A**(구조) + **C**(`.gitignore`·`.env`) |
 | 비밀/토큰 다루기 | **C**(`.env`·Secrets) + **B**(빌드 산출에 미포함) |
+| CSS/글라스 효과 수정(`backdrop-filter`·블러) | **A**(스타일) + **B**(`vite preview` 로 dev↔prod 렌더 차이 확인 — esbuild 프리픽스 함정) |
+| 파비콘/메타 변경 | **A**(`site-meta`·`index.html`) + **B**(`public/` 자산 base·배포) |
 
 ## 3단 체계 복습
 
@@ -30,4 +32,4 @@ CLAUDE.md §3 (대분류 분류)
 ```
 
 일반 작업은 **허브 수준에서 충분**하고, 세부 디테일이 필요할 때만 정본·소스로 내려간다.
-✅ 버전·스캐폴드 확정됨 → SSOT [`mcp-setup.md` D-2](../mcp-setup.md). 다음은 **프로젝트 초기화**(사용자 확인 후).
+✅ 버전·스캐폴드·배포(유저 페이지 라이브)·`/main-1` 메인 확정 → 다음은 **3P(// works) 포트폴리오 콘텐츠**(허브 **A** [`portfolio-plan.md`](../portfolio-plan.md)).

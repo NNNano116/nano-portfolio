@@ -7,7 +7,8 @@
 > 🟡 **현재 상태**: 스택(React+Vite+GH Pages)·개발 스킬 문서·git/`.env` 규약 **확정**.
 > **MCP**: `context7`·`playwright` 연결됨(D-1). **버전 고정**(D-2/D-3): Node 24.17.0 · React 19.2.7 · Vite 8.0.16 · TS 6.0.3 · react-router 8.0.1 · three 0.184.0 · npm 11 → SSOT [`mcp-setup.md`](./docs/mcp-setup.md).
 > ✅ **초기화·배포 완료**: 스캐폴드+`base`+해시 라우터+`deploy.yml`, **빌드 검증 ✔**, **GH Pages 라이브**(유저 페이지) https://nnnano116.github.io/ → [`project-init.md`](./docs/project-init.md).
-> ✅ **`/main-1` 메인(히어로) + 자기소개(2P) 섹션 개발 완료** (2026-06-26): 3D 구체 물리 히어로 → [`main1-hero.md`](./docs/main1-hero.md), 3페이지 스크롤 인터랙션(색반전·명칭 모프·디자인 이력서)·**페이지 이동 UX 확정**(데스크탑 휠 '한 제스처=1섹션' 락 / 모바일 터치 '완전 제어' 드래그)·글라스 OS 분기 → [`main1-scroll-interactions.md`](./docs/main1-scroll-interactions.md). **다음: 3P(// works 포트폴리오) 콘텐츠.**
+> ✅ **`/main-1` 메인(히어로) + 자기소개(2P) 섹션 개발 완료** (2026-06-26): 3D 구체 물리 히어로 → [`main1-hero.md`](./docs/main1-hero.md), 3페이지 스크롤 인터랙션(색반전·명칭 모프·디자인 이력서)·**페이지 이동 UX 확정**(데스크탑 휠 '한 제스처=1섹션' 락 / 모바일 터치 '완전 제어' 드래그)·글라스 OS 분기 → [`main1-scroll-interactions.md`](./docs/main1-scroll-interactions.md).
+> ✅ **2026-06-26 운영/수정 묶음**: ① **유저 페이지 전환**(레포 `nano-portfolio`→`NNNano116.github.io`·`base:'/'`) → [`git-connection.md`](./docs/git-connection.md) ② **Main1 히어로 `/` 메인 승격** + 기본 Vite 스캐폴드 정리(App·assets·icons 제거) ③ **프로덕션 글라스 블러 깨짐 수정**(esbuild 가 `backdrop-filter` 중복 제거 → webkit 먼저/표준 마지막) → [`main1-scroll-interactions.md §6-2a`](./docs/main1-scroll-interactions.md) ④ **모바일 '빈 파비콘' 수정**(불투명 네이비 베이스+PNG/manifest) → [`site-meta.md`](./docs/site-meta.md). **다음: 3P(// works 포트폴리오) 콘텐츠.**
 
 ---
 
@@ -158,8 +159,9 @@ CLAUDE.md §3 (대분류 분류)
 0. ✅ **MCP 연결**(D-1) + **버전 고정**(D-2/D-3) + **초기화·빌드 검증** + **커밋·푸시** + **GH Pages 첫 배포(라이브)** 완료.
 1. ✅ 로컬 Node **24.17.0 업그레이드** + `react-router@8.0.1` 상향 + lockfile 갱신 완료(빌드 검증).
 2. ✅ **`/main-1` 메인(히어로) + 자기소개(2P) 섹션 개발 완료**(2026-06-26): 3D 물리 히어로 → [`main1-hero.md`](./docs/main1-hero.md) / 3페이지 스크롤·색반전·디자인 이력서·**페이지 이동 UX 확정**(데스크탑 휠 락 모델 / 모바일 터치 완전 제어 드래그)·글라스 OS 분기·헤더 메타/OG → [`main1-scroll-interactions.md`](./docs/main1-scroll-interactions.md)·[`site-meta.md`](./docs/site-meta.md).
-3. **(다음)** **3P(// works) 포트폴리오 섹션 콘텐츠** 개발. → 허브 **A** [`portfolio-plan.md`](./docs/portfolio-plan.md).
-4. 변경 푸시 시 Actions가 자동 재배포(→ 라이브 URL 갱신). 앱 목적/기능 확장 시 §30초요약·대분류 표 갱신.
+3. ✅ **2026-06-26 운영/수정 묶음**(전부 라이브 검증): ⓐ **유저 페이지 전환**(레포 rename·`base:'/'`·OG·문서 일괄) → [`git-connection.md`](./docs/git-connection.md)·허브 **B/C** ⓑ **Main1 `/` 메인 승격** + Vite 스캐폴드 정리(App·assets·`icons.svg` 제거, `<Navigate>` 구 `/main-1` 리다이렉트) ⓒ **프로덕션 글라스 블러 깨짐 수정**(esbuild `backdrop-filter` 중복 제거 → webkit 먼저/표준 마지막) → [`main1-scroll-interactions.md §6-2a`](./docs/main1-scroll-interactions.md)·허브 **B** ⓓ **모바일 '빈 파비콘' 수정**(불투명 베이스+PNG 폴백+manifest) → [`site-meta.md`](./docs/site-meta.md).
+4. **(다음)** **3P(// works) 포트폴리오 섹션 콘텐츠** 개발. → 허브 **A** [`portfolio-plan.md`](./docs/portfolio-plan.md).
+5. 변경 푸시 시 Actions가 자동 재배포(→ 라이브 URL 갱신). 앱 목적/기능 확장 시 §30초요약·대분류 표 갱신.
 
-> 확정: **스택·문서·허브·MCP·버전 고정·앱 스캐폴드·배포 파이프라인(라이브)·`/main-1` 메인+자기소개 섹션·페이지 이동 UX·헤더 메타/OG**.
+> 확정: **스택·문서·허브·MCP·버전 고정·앱 스캐폴드·배포 파이프라인(라이브)·`/main-1` 메인+자기소개 섹션·페이지 이동 UX·헤더 메타/OG·유저 페이지 전환·`/` 메인 승격·프로덕션 글라스 블러 수정·모바일 파비콘 수정**.
 > 다음: **3P(// works) 포트폴리오 콘텐츠**. 커밋·푸시는 사용자 확인 후.

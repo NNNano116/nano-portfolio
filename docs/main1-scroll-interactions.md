@@ -131,6 +131,15 @@
 - 타이틀(`.seg__head`)이 `seg__inner` 안에 인플로우로 있어 **글라스가 // profile·명칭+콘텐츠 전체를 감싼다**.
 - ⚠️ **오버스크롤/틈에 다크 배경 노출 방지**: `.main1` 의 배경을 `color-mix(#0d181f, light var(--p))` 로 두어 **--inv 따라 다크↔라이트 전환**(1P 다크 / 2P·3P 라이트). + `overscroll-behavior: none`(바운스 차단). (모바일에서 라이트 2P/3P 하단에 1P 다크가 노출되던 문제)
 
+### 6-2a. ⚠️ 프로덕션 빌드에서 PC 글라스 블러가 사라지는 함정 (2026-06-26 수정) ⭐
+**증상**: `npm run dev`(데스크탑 Chrome)에선 글라스가 정상 프로스트인데, **빌드 후(`vite preview`·GitHub Pages)** 에선 PC에서 블러가 사라져 레이저·격자가 카드를 그대로 관통. (안드로이드 미작동(§6-2)과는 **다른 별개 문제** — 이건 데스크탑 Chrome·프로덕션 한정.)
+
+**원인**: **esbuild(Vite 기본 프로덕션 CSS 미니파이)가 `backdrop-filter` 와 `-webkit-backdrop-filter` 를 같은 속성으로 보고 한 규칙 안의 '마지막 선언만' 남긴다.** 글라스 규칙들이 소스에서 `표준 → -webkit-` 순서라, **표준 `backdrop-filter` 가 제거되고 `-webkit-` 만** 남아 데스크탑 Chrome 에서 블러가 미렌더(`getComputedStyle(...,'::before').backdropFilter === 'none'`). dev 서버는 CSS 비압축이라 둘 다 살아있어 정상 → **dev=O / prod=X 불일치**.
+
+**해결**: 모든 글라스 규칙에서 **`-webkit-backdrop-filter` 를 먼저, 표준 `backdrop-filter` 를 '마지막'** 에 둔다(원래 정상이던 `.main1__top` 버튼과 동일 패턴) → 표준이 빌드에 살아남음. 대상 규칙: **`.seg__inner::before` · `.card` · `.work-card`**. (`Main1.css` 해당 위치에 순서 주의 주석 있음.)
+
+**검증**: `vite preview`(프로덕션 빌드 로컬 서빙)로 재현 → 수정 후 computed `backdrop-filter:blur(6px) saturate(1.18)` 복구 → live(github.io)에서 Playwright 로 페이지2 스크롤·스크린샷 비교 ✔. **앞으로 `backdrop-filter` 추가 시 항상 webkit 먼저/표준 마지막**(다른 벤더 프리픽스 속성도 동일 리스크) → 빌드 후 `vite preview` 로 1회 확인 권장. (허브 **B** [`_hub_deploy.md`](./guide/_hub_deploy.md) 체크리스트 연동)
+
 ### 6-3. 리빌(스크롤하며 천천히 등장) ⭐
 - **이력(2p)**: `.resume__intro`/`.resume__block` 은 **`.is-page-2`(이력이 '현재 페이지') + `.is-settled`** 게이트로 리빌.
   `transition-delay: calc(0.2s + var(--i)·0.11s)` → **명칭이 뜬 직후** 자기소개→연락처→스킬→경력… 순서로 **'적히듯' 구성**.

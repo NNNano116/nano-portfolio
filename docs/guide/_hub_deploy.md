@@ -12,7 +12,8 @@
 GitHub Pages · `Settings → Pages` · GitHub Actions · `deploy.yml` ·
 `actions/upload-pages-artifact`·`actions/deploy-pages` · `GITHUB_TOKEN`(CI) ·
 `gh-pages` 브랜치 · 정적 빌드본 업로드 · 새로고침 404 · 해시 라우팅 · `404.html` fallback ·
-사용자페이지 `<user>.github.io` · 프로젝트페이지 `/<repo>/` · 상대 경로
+사용자페이지 `<user>.github.io` · 프로젝트페이지 `/<repo>/` · 상대 경로 ·
+**CSS 미니파이(esbuild) 프로덕션 함정**(`backdrop-filter` 등 벤더 프리픽스 중복 제거 · dev↔prod 렌더 차이 · `vite preview` 재현)
 
 ## 2. 세부 도메인 목차
 
@@ -34,6 +35,8 @@ GitHub Pages · `Settings → Pages` · GitHub Actions · `deploy.yml` ·
 - [ ] 배포 전 `vite preview` 로 프로덕션 빌드본을 로컬 확인했는가. (포트 4173·`base` 접속 URL → [`local-run.md §3`](../local-run.md))
 - [ ] `npm run build` 실패 시 **`tsc -b` 타입 에러인지 `vite build` 인지** 로그로 구분했는가 → [`local-run.md §2`](../local-run.md).
 - [ ] **비밀값을 빌드 산출에 넣지 않았는가** — 정적이라 클라이언트에 그대로 노출 → 허브 **C**.
+- [ ] ⚠️ **dev 는 되는데 빌드(prod)에서 스타일이 깨지지 않는가** — esbuild CSS 미니파이가 `backdrop-filter`/`-webkit-backdrop-filter` 같은 **프리픽스+표준 중복을 '마지막 선언만' 남겨** 표준이 제거될 수 있음. **벤더 프리픽스를 먼저, 표준을 마지막**에 두고 `vite preview` 로 1회 확인. 상세·사례 → [`main1-scroll-interactions.md §6-2a`](../main1-scroll-interactions.md).
+- [ ] **CSS 변경 후 `vite preview`(프로덕션 빌드)로 확인했는가** — dev(비압축)와 prod(미니파이)는 렌더가 다를 수 있음(위 항목).
 - [ ] 방식 A: Pages Source = "GitHub Actions" / 방식 B: `gh-pages` 브랜치로 푸시(자격증명 필요 → 허브 **C**).
 - [ ] 방식 B 에서 빌드 출력을 `docs/` 로 내보내 **문서 폴더와 충돌**시키지 않았는가(→ `gh-pages` 브랜치 권장).
 - [x] ✅ 액션 버전 확정: checkout@v7 · setup-node@v6(node 24) · configure-pages@v6 · upload-pages-artifact@v5 · deploy-pages@v5 → SSOT [`mcp-setup.md` D-2](../mcp-setup.md).
