@@ -696,12 +696,12 @@
   inset: clamp(14px, 2.6vw, 30px) clamp(8px, 1.6vw, 20px);
   z-index: -1;
   border-radius: clamp(18px, 2.6vw, 28px);
-  /* 얇은 유리: 약한 블러 + 옅은 sheen. 블러가 약/미적용인 환경에서도 패널이 보이도록 sheen 살짝 ↑ */
+  /* 얇은 유리: 약한 블러 + 아주 옅은 sheen(레이저·격자가 더 비치도록 투명도 ↑) */
   background: linear-gradient(
     150deg,
-    rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.07) 45%,
-    rgba(255, 255, 255, 0.03) 100%
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.045) 45%,
+    rgba(255, 255, 255, 0.018) 100%
   );
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow:
@@ -736,9 +736,9 @@
   .seg--work .seg__inner::before {
     background: linear-gradient(
       150deg,
-      rgba(250, 252, 255, 0.5) 0%,
-      rgba(248, 251, 254, 0.4) 55%,
-      rgba(246, 250, 254, 0.34) 100%
+      rgba(250, 252, 255, 0.4) 0%,
+      rgba(248, 251, 254, 0.31) 55%,
+      rgba(246, 250, 254, 0.26) 100%
     );
   }
 }
