@@ -15,6 +15,7 @@
 | 메타 설명 / OG / Twitter description | `안녕하세요, 4년차 백엔드 개발자 김준영입니다. 잘부탁드립니다.` |
 | author | `김준영 (J·Young)` |
 | 파비콘 | `public/favicon.svg` — **J·Y 글라스 원형** |
+| OG 이미지 | `public/og-image.png` — **1200×630 글라스 카드**(`summary_large_image`) |
 | theme-color (light) | `#e9eff7` (글라스 블루) |
 | theme-color (dark) | `#0d181f` (히어로 네이비) |
 | 배포 URL(OG `og:url`) | `https://nnnano116.github.io/nano-portfolio/` |
@@ -45,8 +46,16 @@
 | 파비콘 | `icon`(svg) · `apple-touch-icon` · `mask-icon`(color `#4a86de`) | 셋 다 `favicon.svg` 재사용 |
 | 기본 | `title` · `description` · `author` · `keywords` | §1 값 |
 | 테마 | `theme-color`×2(light/dark `media`) · `color-scheme` | 1P 다크 ↔ 3P 라이트 분기와 정합 |
-| Open Graph | `og:type/site_name/title/description/url/image/locale(ko_KR)` | 카카오톡·슬랙·페북 미리보기 |
-| Twitter | `twitter:card(summary)/title/description/image` | |
+| Open Graph | `og:type/site_name/title/description/url/image(+width/height/type/alt)/locale(ko_KR)` | 카카오톡·슬랙·페북 미리보기 |
+| Twitter | `twitter:card(summary_large_image)/title/description/image` | 큰 이미지 카드 |
+
+### 3-1. OG 이미지 (`public/og-image.png`)
+
+- **1200×630 PNG**(SNS 표준 비율). 본문 라이트 글라스 톤의 카드 디자인:
+  글라스 패널 + `J·Y` 배지(파비콘 확대) + `J·Young portfolio.` + 메타 문구(하이라이트) + 스킬 칩(PHP/MySQL/NestJS/React/Claude Code) + `github.com/NNNano116`.
+- 제작 방식(재현용): `docs` 외부 scratchpad 의 `og.html`(이 톤·레이아웃 정의)을 **chromium headless** `--screenshot --window-size=1200,630` 로 렌더 → `public/og-image.png` 복사.
+  문구·톤 변경 시 같은 HTML 을 고쳐 재렌더 후 교체. (SVG 파비콘과 색 토큰 공유)
+- ⚠️ **opaque PNG 필수**(투명 배경 금지 — 일부 플랫폼이 검게 처리). `--default-background-color=ffffffff` 로 렌더.
 
 ---
 
@@ -61,12 +70,12 @@
 ## 5. 확인사항 / 한계
 
 - [x] 페이지명·메타 문구·파비콘 반영, dev 서버 파비콘 200 응답·SVG 유효성 확인.
-- [ ] **`og:image` 가 현재 SVG** — 카카오톡 등 일부 플랫폼은 SVG 미리보기 미지원. 정식 공유 미리보기가 필요하면 **1200×630 PNG OG 이미지**를 별도 제작해 교체(후속).
-- [ ] 문구·톤 변경 시 §1 표 → `index.html` → (톤이면) `favicon.svg` 순으로 갱신.
+- [x] **`og:image` 1200×630 PNG 교체 완료**(`summary_large_image`) — 카카오톡·슬랙·페북 큰 카드 미리보기 지원.
+- [ ] 문구·톤 변경 시 §1 표 → `index.html` → (톤이면) `favicon.svg`·`og.html` 재렌더 순으로 갱신.
 
 ---
 
 ## 6. 정본 / 소스
 
-- 소스: `index.html`, `public/favicon.svg`, `vite.config.ts`(base)
+- 소스: `index.html`, `public/favicon.svg`, `public/og-image.png`, `vite.config.ts`(base)
 - 연계: 배포 base/404 → [`deploy.md`](./deploy.md) · 본문 글라스 톤 → [`main1-scroll-interactions.md`](./main1-scroll-interactions.md)
