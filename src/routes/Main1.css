@@ -727,10 +727,11 @@
     );
   }
 }
-/* ⚠️ 터치 기기(모바일): 안드로이드 크롬 등에서 backdrop-filter 가 '지원되지만' 캔버스(레이저·3D) 위에선
-   블러가 렌더되지 않는 경우가 있어 @supports 로는 못 잡음 → pointer:coarse 에서 '블러에 의존하지 않는'
-   반투명 프로스트 패널로 항상 보이게(블러는 되는 기기에선 추가로 적용). PC(pointer:fine)는 얇은 유리 유지. */
-@media (pointer: coarse) {
+/* ⚠️ 실제 모바일(터치 + ≤768): 안드로이드 크롬 등에서 backdrop-filter 가 '지원되지만' 캔버스(레이저·3D)
+   위에선 블러가 렌더되지 않는 경우가 있어(@supports 로 못 잡음) → '블러 비의존' 반투명 프로스트 패널로
+   항상 보이게. **터치 PC(≥769)·일반 PC 는 위의 얇은 유리(0.16)+blur 유지** — 레이저가 비침.
+   (pointer:coarse 만으로는 '블러 되는 터치 PC' 와 '블러 안 되는 폰' 을 못 가려, 폭 조건을 함께 둠) */
+@media (pointer: coarse) and (max-width: 768px) {
   .seg--resume .seg__inner::before,
   .seg--work .seg__inner::before {
     background: linear-gradient(
