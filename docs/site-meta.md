@@ -15,7 +15,7 @@
 | 메타 설명 / OG / Twitter description | `안녕하세요, 4년차 백엔드 개발자 김준영입니다. 잘부탁드립니다.` |
 | author | `김준영 (J·Young)` |
 | 파비콘 | `public/favicon.svg` — **J·Y 글라스 원형** |
-| OG 이미지 | `public/og-image.png` — **1200×630 글라스 카드**(`summary_large_image`) |
+| OG 이미지 | `public/og-image.png` — **1200×630 메인 히어로 스크린샷**(한글 타이틀, `summary_large_image`) |
 | theme-color (light) | `#e9eff7` (글라스 블루) |
 | theme-color (dark) | `#0d181f` (히어로 네이비) |
 | 배포 URL(OG `og:url`) | `https://nnnano116.github.io/nano-portfolio/` |
@@ -51,11 +51,14 @@
 
 ### 3-1. OG 이미지 (`public/og-image.png`)
 
-- **1200×630 PNG**(SNS 표준 비율). 본문 라이트 글라스 톤의 카드 디자인:
-  글라스 패널 + `J·Y` 배지(파비콘 확대) + `J·Young portfolio.` + 메타 문구(하이라이트) + 스킬 칩(PHP/MySQL/NestJS/React/Claude Code) + `github.com/NNNano116`.
-- 제작 방식(재현용): `docs` 외부 scratchpad 의 `og.html`(이 톤·레이아웃 정의)을 **chromium headless** `--screenshot --window-size=1200,630` 로 렌더 → `public/og-image.png` 복사.
-  문구·톤 변경 시 같은 HTML 을 고쳐 재렌더 후 교체. (SVG 파비콘과 색 토큰 공유)
-- ⚠️ **opaque PNG 필수**(투명 배경 금지 — 일부 플랫폼이 검게 처리). `--default-background-color=ffffffff` 로 렌더.
+- **1200×630 PNG** = **메인 히어로(`#/main-1`) 실화면 스크린샷**. 3D 구체 클러스터 + **한글 타이틀**("개발자 김준영입니다。/ 잘부탁드립니다。") + 레이저 배경 + `J·Young` 로고.
+- **한글 타이틀 고정**: 히어로 타이틀은 11개 언어를 3.4s 간격 순환(`TITLES`, 한글=인덱스 0). `prefers-reduced-motion: reduce` 면 순환이 멈춰 **인덱스 0(한글)에 고정**됨(`Main1.tsx` line 227) → 캡처 시 reduced-motion 강제.
+- **제작 방식(재현용)** — ⚠️ **실시간 GPU 렌더 필수**:
+  1. dev 서버 기동(`npm run dev`).
+  2. chromium 을 `--headless=new --use-angle=d3d11 --force-prefers-reduced-motion --window-size=1200,630 --remote-debugging-port=9222` 로 띄워 `http://localhost:<port>/nano-portfolio/#/main-1` 로드.
+  3. **CDP 로 ~6s 실대기 후** `Page.captureScreenshot`(scratchpad `capture.mjs`, Node 24 글로벌 `WebSocket`).
+  - ❌ `--virtual-time-budget`(가상시간) 으로 캡처하면 물리·조명이 어두운 상태로 굳어 구체가 칙칙하게 나옴 → **반드시 실시간 rAF 가 도는 상태로 실대기**.
+- 톤/구도 변경이 필요하면 위 절차로 재캡처 후 교체.
 
 ---
 
