@@ -14,7 +14,7 @@
 | `<html lang>` | `ko` |
 | 메타 설명 / OG / Twitter description | `안녕하세요, 4년차 백엔드 개발자 김준영입니다. 잘부탁드립니다.` |
 | author | `김준영 (J·Young)` |
-| 파비콘 | `public/favicon.svg` — **J·Y 글라스 원형** |
+| 파비콘 | **불투명 네이비 베이스 위 J·Y 글라스 코인** — `favicon.svg`(데스크탑) + `favicon-32.png`/`apple-touch-icon.png`(180)/`icon-192·512.png` + `manifest.webmanifest`. 모두 불투명이라 흰 배경 모바일 탭에서도 선명(§5 참고) |
 | OG 이미지 | `public/og-image.png` — **1200×630 메인 히어로 스크린샷**(한글 타이틀, `summary_large_image`) |
 | theme-color (light) | `#e9eff7` (글라스 블루) |
 | theme-color (dark) | `#0d181f` (히어로 네이비) |
@@ -24,11 +24,12 @@
 
 ---
 
-## 2. 파비콘 — J·Y 글라스 원형 (`public/favicon.svg`)
+## 2. 파비콘 — 네이비 베이스 + J·Y 글라스 코인 (`public/favicon.svg`)
 
-페이지 글라스 패널과 **동일 톤**으로 디자인한 원형 워드마크. 구성 레이어:
+⚠️ **불투명 네이비 베이스 필수**: 이전엔 반투명 글라스 원형만 있어(투명 배경) 흰 배경 모바일 탭에서 **거의 안 보였음**(§5). 히어로 톤 네이비 라운드 스퀘어 베이스 위에 글라스 코인을 올려 어떤 배경에서도 선명하게 함. 구성 레이어:
 
-1. **글라스 본체** — `radialGradient #glass`: 흰색(0.95) → 연블루 `#eaf0fb`(0.78) → `#d7e0f0`(0.62). 반투명 유리감.
+0. **불투명 베이스** — `linearGradient #base`(`#1a2e35`→`#122027`→`#0d181f`) 라운드 스퀘어(`rx 15`) + 컬러 글로우(`#tintA`/`#tintB`). 풀블리드 불투명.
+1. **글라스 본체** — `radialGradient #glass`: 흰색(0.98) → 연블루 `#eaf0fb`(0.9) → `#cfdaee`(0.82). 베이스 위라 불투명도 상향(`r=23` 코인).
 2. **컬러 글로우** — `#tintA`(블루 `#4a86de`, 좌상) + `#tintB`(퍼플 `#9676e0`, 우하). 본문 배경의 블루↔퍼플 그라데이션/레이저 반사 느낌.
 3. **유리 림(이중)** — 외곽 `#ring`(흰↔연회색 그라데이션 1.5px) + 내부 흰색 0.35 하이라이트 림.
 4. **상단 반사 하이라이트** — 흰색 0.5 타원(반사광).
@@ -43,7 +44,7 @@
 
 | 그룹 | 태그 | 비고 |
 |------|------|------|
-| 파비콘 | `icon`(svg) · `apple-touch-icon` · `mask-icon`(color `#4a86de`) | 셋 다 `favicon.svg` 재사용 |
+| 파비콘 | `icon`(svg) · `icon`(png 32) · `apple-touch-icon`(png 180) · `manifest` | SVG=데스크탑, PNG 폴백=SVG 미지원/iOS, manifest=안드로이드/PWA. `mask-icon` 제거(컬러 아이콘이라 부적합) |
 | 기본 | `title` · `description` · `author` · `keywords` | §1 값 |
 | 테마 | `theme-color`×2(light/dark `media`) · `color-scheme` | 1P 다크 ↔ 3P 라이트 분기와 정합 |
 | Open Graph | `og:type/site_name/title/description/url/image(+width/height/type/alt)/locale(ko_KR)` | 카카오톡·슬랙·페북 미리보기 |
@@ -74,11 +75,13 @@
 
 - [x] 페이지명·메타 문구·파비콘 반영, dev 서버 파비콘 200 응답·SVG 유효성 확인.
 - [x] **`og:image` 1200×630 PNG 교체 완료**(`summary_large_image`) — 카카오톡·슬랙·페북 큰 카드 미리보기 지원.
-- [ ] 문구·톤 변경 시 §1 표 → `index.html` → (톤이면) `favicon.svg`·`og.html` 재렌더 순으로 갱신.
+- [x] **모바일 '빈 파비콘' 수정**(2026-06-26): 원인=반투명·밝은 SVG-only(투명 배경)라 흰 배경 모바일 탭에서 안 보임 + iOS apple-touch-icon 은 SVG 미지원. 해결=불투명 네이비 베이스 + PNG 폴백(32/180/192/512) + `manifest.webmanifest`.
+- [ ] **PNG 아이콘 재생성 방법**(톤 변경 시): `favicon.svg` 수정 → `public/_raster.html`(임시: `<img src=/favicon.svg>` + `?s=크기&bg=1`) 띄워 Playwright 로 32·180·192·512 뷰포트 스크린샷 → `public/` 에 저장. 추가 의존성 없음.
+- [ ] 문구·톤 변경 시 §1 표 → `index.html` → (톤이면) `favicon.svg`·PNG 재렌더·`og.html` 순으로 갱신.
 
 ---
 
 ## 6. 정본 / 소스
 
-- 소스: `index.html`, `public/favicon.svg`, `public/og-image.png`, `vite.config.ts`(base)
+- 소스: `index.html`, `public/favicon.svg`, `public/favicon-32.png`·`apple-touch-icon.png`·`icon-192.png`·`icon-512.png`, `public/manifest.webmanifest`, `public/og-image.png`, `vite.config.ts`(base)
 - 연계: 배포 base/404 → [`deploy.md`](./deploy.md) · 본문 글라스 톤 → [`main1-scroll-interactions.md`](./main1-scroll-interactions.md)

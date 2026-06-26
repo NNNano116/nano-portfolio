@@ -1,24 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
   <defs>
+    <!-- 불투명 네이비 베이스(히어로 톤) — 어떤 배경(흰 모바일 탭 포함)에서도 선명하게 -->
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a2e35"/>
+      <stop offset="55%" stop-color="#122027"/>
+      <stop offset="100%" stop-color="#0d181f"/>
+    </linearGradient>
     <!-- 페이지 글라스 패널과 동일 톤: 연한 블루·라벤더 반투명 -->
     <radialGradient id="glass" cx="34%" cy="28%" r="80%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-      <stop offset="45%" stop-color="#eaf0fb" stop-opacity="0.78"/>
-      <stop offset="100%" stop-color="#d7e0f0" stop-opacity="0.62"/>
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="45%" stop-color="#eaf0fb" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#cfdaee" stop-opacity="0.82"/>
     </radialGradient>
     <!-- 블루↔퍼플 컬러 글로우(레이저/그라데이션 반사 느낌) -->
-    <radialGradient id="tintA" cx="22%" cy="32%" r="55%">
+    <radialGradient id="tintA" cx="22%" cy="30%" r="58%">
       <stop offset="0%" stop-color="#4a86de" stop-opacity="0.30"/>
       <stop offset="100%" stop-color="#4a86de" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="tintB" cx="80%" cy="78%" r="55%">
-      <stop offset="0%" stop-color="#9676e0" stop-opacity="0.28"/>
+    <radialGradient id="tintB" cx="80%" cy="80%" r="58%">
+      <stop offset="0%" stop-color="#9676e0" stop-opacity="0.30"/>
       <stop offset="100%" stop-color="#9676e0" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="ring" x1="14%" y1="6%" x2="86%" y2="96%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
-      <stop offset="50%" stop-color="#c3d2ea" stop-opacity="0.5"/>
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.7"/>
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="#c3d2ea" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.8"/>
     </linearGradient>
     <linearGradient id="text" x1="20%" y1="14%" x2="80%" y2="90%">
       <stop offset="0%" stop-color="#3f6fd1"/>
@@ -26,19 +32,23 @@
     </linearGradient>
   </defs>
 
-  <!-- 글라스 원형 본체 -->
-  <circle cx="32" cy="32" r="29" fill="url(#glass)"/>
-  <circle cx="32" cy="32" r="29" fill="url(#tintA)"/>
-  <circle cx="32" cy="32" r="29" fill="url(#tintB)"/>
-  <!-- 유리 테두리(이중 림: 외곽 + 내부 하이라이트) -->
-  <circle cx="32" cy="32" r="29" fill="none" stroke="url(#ring)" stroke-width="1.5"/>
-  <circle cx="32" cy="32" r="26.5" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1"/>
-  <!-- 상단 글라스 하이라이트(반사광) -->
-  <ellipse cx="26" cy="17" rx="15" ry="7" fill="#ffffff" fill-opacity="0.5"/>
+  <!-- 불투명 베이스(라운드 스퀘어) — 비침 방지 -->
+  <rect x="0" y="0" width="64" height="64" rx="15" fill="url(#base)"/>
+  <!-- 베이스 위 은은한 컬러 글로우 -->
+  <rect x="0" y="0" width="64" height="64" rx="15" fill="url(#tintA)"/>
+  <rect x="0" y="0" width="64" height="64" rx="15" fill="url(#tintB)"/>
 
-  <!-- J·Y 워드마크 -->
-  <text x="32" y="33" text-anchor="middle" dominant-baseline="central"
+  <!-- 글라스 원형 본체(불투명 베이스 위라 선명) -->
+  <circle cx="32" cy="32" r="23" fill="url(#glass)"/>
+  <!-- 유리 테두리(이중 림: 외곽 + 내부 하이라이트) -->
+  <circle cx="32" cy="32" r="23" fill="none" stroke="url(#ring)" stroke-width="1.4"/>
+  <circle cx="32" cy="32" r="20.8" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="0.9"/>
+  <!-- 상단 글라스 하이라이트(반사광) -->
+  <ellipse cx="27" cy="20" rx="11.5" ry="5" fill="#ffffff" fill-opacity="0.55"/>
+
+  <!-- J·Y 워드마크 (PNG 폴백에는 픽셀로 구워져 폰트 비의존) -->
+  <text x="32" y="33.5" text-anchor="middle" dominant-baseline="central"
         font-family="system-ui, 'Segoe UI', Roboto, sans-serif"
-        font-size="25" font-weight="700" letter-spacing="-0.5"
+        font-size="20" font-weight="700" letter-spacing="-0.5"
         fill="url(#text)">J·Y</text>
 </svg>
