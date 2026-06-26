@@ -727,10 +727,8 @@
     );
   }
 }
-/* ⚠️ 실제 모바일(터치 + ≤768): 안드로이드 크롬 등에서 backdrop-filter 가 '지원되지만' 캔버스(레이저·3D)
-   위에선 블러가 렌더되지 않는 경우가 있어(@supports 로 못 잡음) → '블러 비의존' 반투명 프로스트 패널로
-   항상 보이게. **터치 PC(≥769)·일반 PC 는 위의 얇은 유리(0.16)+blur 유지** — 레이저가 비침.
-   (pointer:coarse 만으로는 '블러 되는 터치 PC' 와 '블러 안 되는 폰' 을 못 가려, 폭 조건을 함께 둠) */
+/* coarse 폰(iOS 포함 — backdrop-filter 가 정상 작동, 블러로 정돈됨): 얇은 프로스트(0.4) — iOS 에서 완벽.
+   터치 PC(≥769)·일반 PC 는 위의 얇은 유리(0.1)+blur 유지(레이저 비침). */
 @media (pointer: coarse) and (max-width: 768px) {
   .seg--resume .seg__inner::before,
   .seg--work .seg__inner::before {
@@ -741,6 +739,17 @@
       rgba(246, 250, 254, 0.26) 100%
     );
   }
+}
+/* ⚠️ 안드로이드(JS 가 .is-android 부여): backdrop-filter 가 canvas(레이저·3D) 위에서 미작동 →
+   블러가 없어 0.4 면 배경이 너무 비침 → 블러 없이도 정돈되도록 더 불투명하게(iOS 는 영향 없음). */
+.main1.is-android .seg--resume .seg__inner::before,
+.main1.is-android .seg--work .seg__inner::before {
+  background: linear-gradient(
+    150deg,
+    rgba(250, 252, 255, 0.66) 0%,
+    rgba(248, 251, 254, 0.56) 55%,
+    rgba(246, 250, 254, 0.5) 100%
+  );
 }
 /* 글라스 opacity 는 ::before 자신에 둬서 backdrop-filter(블러)가 유지되도록(ancestor opacity 금지).
    라이트 전환(.is-light) 시 부드럽게 등장. */

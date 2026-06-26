@@ -82,17 +82,22 @@
   - 따라서 **1P 에서 휠 다운 = 2P top 으로만 이동(캡)**, 한 제스처로 2→3 으로 못 넘어감.
 - `animateTo`: easeInOutCubic, `dur = min(720, 360 + |dist|·0.34)ms`. 전환 중(`animating || animatingRef.current`)엔 추가 휠 차단(끊김·오버슈트 방지).
 
-### 5-2. 모바일(touch/drag) — JS 섹션 캡 (데스크탑 wheel 과 동일 경험) ⭐
-> CSS `scroll-snap proximity` 는 ① 페이지가 드래그한 만큼만 움직이고 ② 임계 이상이어도 전환이 불안정했음 →
-> **JS 터치 핸들러**로 데스크탑 wheel 과 동일한 "한 제스처 = 한 섹션" 경험을 구현. CSS 스냅은 **전 화면 off**.
-- `touchstart`: 시작 scrollTop·섹션을 기록, 그 섹션의 **상단/하단 경계 여부**(`tAtTop`/`tAtBottom`) 판정. 진행 중 전환은 취소(새 터치 우선).
-- `touchmove`(passive:false): 첫 이동 방향으로 **모드 결정** —
-  - 경계에서 더 나가는 방향(하단+아래로 / 상단+위로) → `'next'`/`'prev'`: `preventDefault` 후 **페이지가 드래그를 따라 이동**(`tDrag·0.42`, 저항감, 최대 0.55vh).
-  - 그 외(섹션 내부) → `'native'`: 그대로 네이티브 자유 스크롤(긴 이력 읽기).
-- `touchend`: `tDrag > vh·0.14`(거리) 또는 `|tVel| > 1.3 px/ms`(빠른 플릭)면 → `animateTo(다음/이전 섹션 top)`(전환), **미만이면 `animateTo(시작 위치)`(복귀)**.
-- 결과: 모바일에서도 **경계 드래그 → 임계 이상이면 깔끔히 페이지 전환 / 미만이면 복귀**, 섹션 내부는 자유 스크롤(데스크탑 wheel 과 동일).
-  - 히어로(1P)의 3D 구체 터치 인터랙션과 공존(터치=섹션 전환은 이벤트, 구체=pointer 이벤트로 분리). 작은 드래그(<14%)는 전환 안 되어 구체 조작 여지 유지.
+### 5-2. 모바일(touch/drag) — 네이티브 스크롤 + 스크롤 종료 스냅 ⭐ (재설계 2026-06-26)
+> ❌ 과거(`touchmove` 에서 `preventDefault` + 직접 스크롤)는 **안드로이드 크롬에서 초기 작은 이동에 네이티브 스크롤이
+> 먼저 시작되면 이후 `preventDefault` 가 무시**돼 페이지가 **멈추는(stuck) 버그**가 있었음.
+> → **`preventDefault` 를 전혀 쓰지 않는** 모델로 재설계: **네이티브 스크롤(관성 그대로) + 손 떼고 관성이 멎으면 스냅**.
+- `touchstart`: `touchActive=true`, 진행 중 전환(animateTo) 취소, **시작 '주 섹션'**(=뷰포트 중앙 `scrollTop+vh/2` 가 속한 섹션) top 기록.
+- `scroll`(passive): `touchActive` 동안 스냅 타이머를 계속 미룸 → **관성이 완전히 멎은 뒤** 한 번만 스냅.
+- `touchend`: 스냅 예약(관성 동안 `scroll` 이 미루다, 멎으면 120ms 후 실행).
+- **스냅 규칙**(`doSnap`): 현재 '주 섹션'(뷰포트 중앙 기준)이 —
+  - **시작과 달라졌으면**(다른 페이지로 넘어옴) → `animateTo(그 섹션 top)` = **도착한 페이지 시작이 최상단으로**.
+  - 같은데 그 섹션 top 위로 끌려가 있으면(절반 못 넘김) → `animateTo(현재 섹션 top)` = **복귀**.
+  - 그 외(섹션 내부 아래로 읽는 중) → **스냅 안 함**(긴 이력 자유 읽기 보존).
+- 효과: **절반 이상 드래그 → 다음/이전 페이지 시작점이 최상단으로 정렬**, 절반 미만 → 복귀, 내부는 자유 스크롤.
+  뷰포트 중앙 기준이라 임계는 자연히 **≈0.5vh(절반)**. preventDefault 없음 → 안드로이드 stuck 원천 제거. 1P 3D 터치와도 공존.
+  검증(합성): 1P↔2P·2P↔3P 전환 시 정확히 섹션 top 도착 / 절반 미만·내부 읽기 비스냅 ✔.
 - `animateTo`: easeInOutCubic, `dur = min(720, 360 + |dist|·0.34)ms`(wheel·touch 공용). `reduced-motion` 비활성.
+- **2P→3P 버벅임 완화**: 오프-히어로(`scrollTop > vh·0.92`)에서 **레이저 캔버스 렌더 스킵**(마지막 프레임 고정) → 전환 중 메인스레드 부하 ↓.
 
 ### 5-3. 안내 클릭 / 맨 위로
 - 히어로 안내(`scrollToNext`): 다음(이력) 섹션으로 easeInOutCubic ~1.2s.
@@ -117,9 +122,12 @@
 
 ### 6-2. 글라스 패널 (`.seg__inner::before`)
 - 라이트 전환(`.is-light`) 시 부드럽게 등장. `backdrop-filter: blur(6px) saturate(1.18)` + 아주 옅은 sheen → 레이저·격자가 더 비침. 라운드+테두리.
-- **투명도(흰색 틴트, 상단→하단)**: PC·터치 PC(≥769) = `0.1 / 0.045 / 0.018`(+blur) / 실제 모바일(폰 ≤768+터치) = `0.4 / 0.31 / 0.26`(블러 비의존). → 더 투명하면 패널감 약해짐(특히 블러 없는 폰).
+- **투명도(흰색 틴트, 상단→하단) — 환경별**:
+  - **PC·터치 PC(≥769)** = `0.1 / 0.045 / 0.018` (+blur, 레이저 비침).
+  - **iOS·일반 폰(coarse ≤768)** = `0.4 / 0.31 / 0.26` — **iOS 는 backdrop-filter 정상 → 블러로 정돈, 완벽**.
+  - **안드로이드(`.main1.is-android`, JS userAgent 감지)** = `0.66 / 0.56 / 0.5` — ⚠️ **안드로이드 크롬은 backdrop-filter 가 canvas(레이저·3D) 위에서 미작동** → 블러가 없어 0.4 면 배경이 너무 비침 → **블러 없이도 정돈되도록 더 불투명**(iOS·PC 는 영향 없음).
 - ⚠️ **opacity 는 반드시 `::before` 자신에** 둔다 — 부모(`seg__inner`)에 opacity 를 주면 자식 `backdrop-filter` 가 격리되어 **블러가 사라진다**(과거 버그). 콘텐츠 페이드가 필요하면 별도 래퍼(`.seg__fade`) 사용.
-- ⚠️ **모바일 블러 안 보임 대응**: 안드로이드 크롬 등에서 backdrop-filter 가 '지원되지만' **`<canvas>`(레이저·3D) 위에선 블러가 렌더되지 않는** 케이스가 있음(`@supports` 로 못 잡음). → **`@media (pointer: coarse) and (max-width: 768px)`** (=실제 모바일/1열)에서만 글라스를 **블러 비의존 반투명 패널(0.4)** 로 둬 항상 보이게. **그 외(PC·터치 PC ≥769)는 얇은 유리(0.1)+blur 유지** — 레이저 비침. (`pointer:coarse` 만으론 '블러 되는 터치 PC' 와 '블러 안 되는 폰' 을 못 가려 폭 조건을 함께 둠.) iOS 보강으로 `-webkit-overflow-scrolling:touch` 도 제거.
+- ⚠️ **블러 미작동은 OS 별로 다름**(핵심): **iOS·PC 는 backdrop-filter 정상** → 얇은 유리 유지. **안드로이드 크롬만** canvas 위 블러 미작동 → **JS userAgent 로 `.is-android` 부여 후 그때만 더 불투명**(위 투명도 표). `@supports` 는 '지원되지만 미렌더' 를 못 잡고, `pointer:coarse` 는 iOS/Android 를 못 가리므로 **userAgent 감지가 정답**. iOS 보강으로 `-webkit-overflow-scrolling:touch` 도 제거.
 - 타이틀(`.seg__head`)이 `seg__inner` 안에 인플로우로 있어 **글라스가 // profile·명칭+콘텐츠 전체를 감싼다**.
 - ⚠️ **오버스크롤/틈에 다크 배경 노출 방지**: `.main1` 의 배경을 `color-mix(#0d181f, light var(--p))` 로 두어 **--inv 따라 다크↔라이트 전환**(1P 다크 / 2P·3P 라이트). + `overscroll-behavior: none`(바운스 차단). (모바일에서 라이트 2P/3P 하단에 1P 다크가 노출되던 문제)
 

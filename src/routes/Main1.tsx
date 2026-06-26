@@ -192,6 +192,10 @@ function distToSeg(px: number, py: number, ax: number, ay: number, bx: number, b
   return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
 }
 
+// 안드로이드 감지 — backdrop-filter 가 canvas 위에서 미작동해 글라스가 너무 비치므로 더 불투명한 패널로 보강(.is-android).
+//   iOS·PC 는 블러가 정상이라 제외(얇은 유리 유지).
+const IS_ANDROID = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent)
+
 export default function Main1() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const laserRef = useRef<HTMLCanvasElement>(null)
@@ -429,94 +433,66 @@ export default function Main1() {
         }
       }
     }
-    // ── 모바일 터치/드래그: 섹션 경계에서 드래그하면 페이지가 따라오다 임계 이상 시 다음/이전 섹션으로 전환,
-    //    미만이면 복귀. 섹션 내부(긴 이력)는 네이티브 자유 스크롤. ──
-    let tStartY = 0
-    let tStartScroll = 0
-    let tMode: '' | 'native' | 'next' | 'prev' = ''
-    let tDrag = 0
-    let tLastY = 0
-    let tLastT = 0
-    let tVel = 0 // px/ms (+ = 아래로 스크롤 의도)
-    let tAtTop = false
-    let tAtBottom = false
-    let tCur = { top: 0, bottom: 0 }
+    // ── 모바일 터치/드래그: '네이티브 스크롤(관성 그대로) + 스크롤 종료 시 스냅'.
+    //    preventDefault 를 쓰지 않아(안드로이드에서 초기 작은 이동에 네이티브 스크롤이 먼저 시작되면
+    //    이후 preventDefault 가 무시돼 멈추던 버그 원천 제거). 손가락을 떼고 관성이 멎으면:
+    //    뷰포트 중앙이 가리키는 '주 섹션' 이 바뀌었으면 → 그 섹션 최상단으로 정렬(= 도착한 페이지 시작점이 맨 위로),
+    //    안 바뀌었는데 그 섹션 top 위로 끌려가 있으면 → 현재 섹션 top 으로 복귀. 섹션 내부(긴 이력) 읽기는 스냅 안 함. ──
+    let touchActive = false
+    let touchStartTop = -1 // 터치 시작 시 '주 섹션' 의 top
+    let snapTimer = 0
+    function curSecByMid(y: number) {
+      const vh = el!.clientHeight
+      const mid = y + vh * 0.5 // 뷰포트 중앙
+      const secs = tops()
+      return secs.find((s) => mid >= s.top && mid < s.bottom) || secs[secs.length - 1]
+    }
+    function doSnap() {
+      touchActive = false
+      const y = el!.scrollTop
+      const primary = curSecByMid(y)
+      if (primary.top !== touchStartTop) animateTo(primary.top) // 주 섹션 바뀜 → 새 섹션 최상단 정렬
+      else if (y < primary.top - 4) animateTo(primary.top) // 인접쪽으로 끌었으나 못 넘김 → 현재 섹션 top 복귀
+      // else: 섹션 내부 읽는 중 → 스냅 안 함
+    }
+    function scheduleSnap() {
+      clearTimeout(snapTimer)
+      snapTimer = window.setTimeout(() => {
+        if (!touchActive) return
+        if (animating) {
+          scheduleSnap() // 전환 애니메이션 중이면 미룸
+          return
+        }
+        doSnap()
+      }, 120)
+    }
     function onTouchStart(e: TouchEvent) {
-      if (e.touches.length !== 1) {
-        tMode = 'native'
-        return
-      }
+      if (e.touches.length !== 1) return // 핀치 등은 무시
       cancelAnimationFrame(raf) // 진행 중 전환 즉시 취소(새 터치 우선)
       animating = false
       animatingRef.current = false
-      const vh = el!.clientHeight
-      tStartY = e.touches[0].clientY
-      tStartScroll = el!.scrollTop
-      tLastY = tStartY
-      tLastT = e.timeStamp
-      tVel = 0
-      tMode = ''
-      tDrag = 0
-      const secs = tops()
-      tCur = secs.find((s) => tStartScroll >= s.top - 4 && tStartScroll < s.bottom - 4) || secs[0]
-      tAtTop = tStartScroll <= tCur.top + 3
-      tAtBottom = tStartScroll + vh >= tCur.bottom - 3
-    }
-    function onTouchMove(e: TouchEvent) {
-      if (tMode === 'native' || e.touches.length !== 1) return
-      const vh = el!.clientHeight
-      const y = e.touches[0].clientY
-      const t = e.timeStamp
-      const dy = tStartY - y // 손가락 위로 = + (아래로 스크롤 의도)
-      const dt = t - tLastT
-      if (dt > 0) tVel = (tLastY - y) / dt
-      tLastY = y
-      tLastT = t
-      if (tMode === '') {
-        // 섹션 '경계'에서 더 나아가는 드래그만 전환으로 잡고, 그 외는 네이티브(내부 스크롤)
-        if (tAtBottom && dy > 4) tMode = 'next'
-        else if (tAtTop && dy < -4) tMode = 'prev'
-        else if (Math.abs(dy) > 4) tMode = 'native'
-        else return
-      }
-      if (tMode === 'next' || tMode === 'prev') {
-        e.preventDefault() // 네이티브 스크롤 차단 → 전환 직접 제어
-        tDrag = tMode === 'next' ? Math.max(0, dy) : Math.max(0, -dy)
-        const move = Math.min(tDrag * 0.42, vh * 0.55) // 저항감 있게 페이지가 따라옴
-        el!.scrollTop = tStartScroll + (tMode === 'next' ? move : -move)
-      }
+      clearTimeout(snapTimer)
+      touchActive = true
+      touchStartTop = curSecByMid(el!.scrollTop).top
     }
     function onTouchEnd() {
-      if (tMode !== 'next' && tMode !== 'prev') {
-        tMode = ''
-        return
-      }
-      const vh = el!.clientHeight
-      const secs = tops()
-      const DIST = vh * 0.14 // 14% 이상 드래그 → 전환
-      const FLICK = 1.3 // '빠른' 플릭(px/ms)만 거리 무관 전환(일반 드래그 속도엔 안 걸리게)
-      if (tMode === 'next') {
-        const next = secs.find((s) => s.top > tCur.top + 4)
-        if (next && (tDrag > DIST || tVel > FLICK)) animateTo(next.top)
-        else animateTo(tStartScroll) // 임계 미만 → 복귀
-      } else {
-        const prev = [...secs].reverse().find((s) => s.top < tCur.top - 4)
-        if (prev && (tDrag > DIST || tVel < -FLICK)) animateTo(prev.top)
-        else animateTo(tStartScroll)
-      }
-      tMode = ''
+      if (touchActive) scheduleSnap() // 손 뗌 → 관성이 멎으면 스냅(아래 onScrollSettle 이 관성 동안 계속 미룸)
+    }
+    function onScrollSettle() {
+      if (touchActive) scheduleSnap() // 관성 스크롤이 이어지는 동안 스냅을 멎을 때까지 미룬다
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     el.addEventListener('touchstart', onTouchStart, { passive: true })
-    el.addEventListener('touchmove', onTouchMove, { passive: false })
     el.addEventListener('touchend', onTouchEnd, { passive: true })
     el.addEventListener('touchcancel', onTouchEnd, { passive: true })
+    el.addEventListener('scroll', onScrollSettle, { passive: true })
     return () => {
       el.removeEventListener('wheel', onWheel)
       el.removeEventListener('touchstart', onTouchStart)
-      el.removeEventListener('touchmove', onTouchMove)
       el.removeEventListener('touchend', onTouchEnd)
       el.removeEventListener('touchcancel', onTouchEnd)
+      el.removeEventListener('scroll', onScrollSettle)
+      clearTimeout(snapTimer)
       cancelAnimationFrame(raf)
     }
   }, [])
@@ -596,6 +572,14 @@ export default function Main1() {
     let prev = performance.now()
 
     function frame(now: number) {
+      raf = requestAnimationFrame(frame)
+      // 오프-히어로(2P/3P)에서는 레이저 드리프트 렌더 스킵 → 마지막 프레임 고정(전환 중 메인스레드 부하 ↓, 버벅임 완화).
+      //   레이저는 라이트 글라스 뒤에 흐릿하게만 비쳐 고정돼도 티 안 남. 히어로로 돌아오면 자동 재개.
+      const sc = scrollRef.current
+      if (sc && sc.scrollTop > window.innerHeight * 0.92) {
+        prev = now
+        return
+      }
       let dt = (now - prev) / 1000
       prev = now
       if (dt > 0.05) dt = 0.05
@@ -628,7 +612,6 @@ export default function Main1() {
           ctx!.fill()
         }
       }
-      raf = requestAnimationFrame(frame)
     }
     raf = requestAnimationFrame(frame)
 
@@ -1092,7 +1075,7 @@ export default function Main1() {
   return (
     // .main1 = 스크롤 컨테이너. 레이저는 뷰포트에 고정(블리드), 3D 구체는 히어로와 함께 위로 스크롤,
     // 그 위로 섹션(히어로 → 이력 → 개발/포트폴리오)이 흐른다.
-    <div className="main1" ref={scrollRef}>
+    <div className={IS_ANDROID ? 'main1 is-android' : 'main1'} ref={scrollRef}>
       {/* ── 뷰포트 고정 배경 레이어(다크 그라데이션 + 레이저) ──
           스크롤이 2페이지 2/5 를 지나면 filter:invert(--inv)로 색반전 → 라이트 전환.
           2페이지 전체에 걸쳐 보이도록 fixed 로 깔고, 본문 섹션은 투명. */}
