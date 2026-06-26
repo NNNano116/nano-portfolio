@@ -203,6 +203,7 @@ export default function Main1() {
   const scrollRef = useRef<HTMLDivElement>(null) // 스크롤 컨테이너(.main1) — 스크롤 진행도 추적
   const gateRef = useRef(false) // true = 2페이지 2/5 통과 → 새 클릭 버스트 정지
   const animatingRef = useRef(false) // 프로그램 스크롤(클릭 전환·스냅) 진행 중 → 스냅 재진입 방지
+  const wheelStopRef = useRef<(() => void) | null>(null) // 휠 lerp 중단(버튼 클릭이 이어받을 때 충돌 방지)
   const [titleIdx, setTitleIdx] = useState(0) // 다국어 타이틀 순환
   const [titleIn, setTitleIn] = useState(false) // 단어별 rise 트리거(언어 전환 시 false→true)
   const [subIdx, setSubIdx] = useState(0) // 메인페이지 서브타이틀 순환
@@ -405,31 +406,59 @@ export default function Main1() {
       }
       raf = requestAnimationFrame(step)
     }
+    // ── 데스크탑 휠: '한 제스처 = 최대 1섹션' 락 모델(부드러운 animateTo). ⭐
+    //    ❌ 과거: 섹션 내부 네이티브 스크롤의 관성이 경계 animateTo 와 충돌(2→3 튕김 / 3→2 미완료) +
+    //       빠른 스크롤 한 번에 여러 섹션(1→3) 을 건너뜀.
+    //    → 항상 preventDefault(네이티브 0). '한 제스처(휠 버스트)당 1회'만 이동하고, 휠이 멎을 때까지 '락'.
+    //       1→2, 2→3, 3→2, 2→1 처럼 한 번에 한 페이지만. 섹션이 '내용상' 뷰포트보다 충분히 크면(>1.2vh)
+    //       그 안에서 한 스텝(0.9vh) 스크롤하고, 다음 제스처에 다음 섹션으로. ──
+    let locked = false
+    let idleTimer = 0
+    function tryUnlock() {
+      clearTimeout(idleTimer)
+      idleTimer = window.setTimeout(() => {
+        if (animating) tryUnlock() // 전환 애니메이션 중이면 더 기다림
+        else locked = false // 휠이 멎고(150ms) 전환도 끝남 → 다음 이동 허용
+      }, 150)
+    }
+    function stopWheel() {
+      cancelAnimationFrame(raf)
+      animating = false
+      locked = false
+      clearTimeout(idleTimer)
+    }
+    wheelStopRef.current = stopWheel // 버튼(맨위로·안내)이 이어받을 때 휠 애니/락 해제
     function onWheel(e: WheelEvent) {
       if (Math.abs(e.deltaY) < 1) return
-      if (animating || animatingRef.current) {
-        e.preventDefault() // 전환 중(휠 스냅·안내 클릭·맨위로) 추가 휠 차단(오버슈트·끊김 방지)
-        return
-      }
+      e.preventDefault() // 항상 네이티브 스크롤 차단(관성 충돌·오버슈트 방지)
+      tryUnlock() // 휠이 멎으면(150ms) 락 해제 → '한 제스처 = 1회 이동'
+      if (locked || animating || animatingRef.current) return
       const vh = el!.clientHeight
       const y = el!.scrollTop
       const secs = tops()
       const cur = secs.find((s) => y >= s.top - 4 && y < s.bottom - 4) || secs[0]
+      const tall = cur.bottom - cur.top > vh * 1.2 // 빈 패딩(미세 초과)이 아니라 '내용상' 큰 섹션만 내부 스크롤
       if (e.deltaY > 0) {
-        // 아래로: 현재 섹션 하단이 화면 아래에 더 남아있으면(섹션이 뷰포트보다 큼) 내부 자유 스크롤 허용
-        if (cur.bottom - vh > y + 3) return
-        const next = secs.find((s) => s.top > cur.top + 4)
-        if (next) {
-          e.preventDefault()
-          animateTo(next.top)
+        if (tall && cur.bottom - vh > y + 8) {
+          locked = true
+          animateTo(Math.min(cur.bottom - vh, y + vh * 0.9)) // 큰 섹션 내부 한 스텝
+        } else {
+          const next = secs.find((s) => s.top > cur.top + 4)
+          if (next) {
+            locked = true
+            animateTo(next.top) // 다음 섹션 한 페이지
+          }
         }
       } else {
-        // 위로: 현재 섹션 top 위로 스크롤 공간 있으면 내부 자유 스크롤
-        if (y > cur.top + 3) return
-        const prev = [...secs].reverse().find((s) => s.top < cur.top - 4)
-        if (prev) {
-          e.preventDefault()
-          animateTo(prev.top)
+        if (tall && y > cur.top + 8) {
+          locked = true
+          animateTo(Math.max(cur.top, y - vh * 0.9))
+        } else {
+          const prev = [...secs].reverse().find((s) => s.top < cur.top - 4)
+          if (prev) {
+            locked = true
+            animateTo(prev.top) // 이전 섹션 한 페이지
+          }
         }
       }
     }
@@ -469,6 +498,7 @@ export default function Main1() {
     function onTouchStart(e: TouchEvent) {
       if (e.touches.length !== 1) return // 핀치 등은 무시
       cancelAnimationFrame(raf) // 진행 중 전환 즉시 취소(새 터치 우선)
+      stopWheel() // 휠 애니/락 중단(하이브리드 기기 대비)
       animating = false
       animatingRef.current = false
       clearTimeout(snapTimer)
@@ -493,7 +523,9 @@ export default function Main1() {
       el.removeEventListener('touchcancel', onTouchEnd)
       el.removeEventListener('scroll', onScrollSettle)
       clearTimeout(snapTimer)
+      clearTimeout(idleTimer)
       cancelAnimationFrame(raf)
+      wheelStopRef.current = null
     }
   }, [])
 
@@ -995,6 +1027,7 @@ export default function Main1() {
   function scrollToNext() {
     const el = scrollRef.current
     if (!el) return
+    wheelStopRef.current?.() // 휠 lerp 중단(충돌 방지)
     const start = el.scrollTop
     const dist = el.clientHeight - start // 한 화면 아래(=이력 섹션 상단)
     if (dist < 4) return
@@ -1021,6 +1054,7 @@ export default function Main1() {
   function scrollToTop() {
     const el = scrollRef.current
     if (!el) return
+    wheelStopRef.current?.() // 휠 lerp 중단(충돌 방지)
     const start = el.scrollTop
     if (start < 4) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

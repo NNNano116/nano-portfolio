@@ -74,13 +74,16 @@
 > 핵심 UX: **한 번의 제스처(휠/드래그)로는 한 섹션만** 이동(1P→2P 가 최대, 오버슈트 차단). 이력이 뷰포트보다 길면 그 안에서는 자유 스크롤.
 > CSS 스냅(`mandatory`=긴 콘텐츠 읽기불가 / `proximity`=오버슈트·전환 불안정)은 둘 다 부적합 → **데스크탑 wheel·모바일 touch 모두 JS 로 정밀 제어**(CSS 스냅 off).
 
-### 5-1. 데스크탑(wheel) — JS 섹션 캡 (`Main1.tsx` wheel useEffect)
-- 섹션 top/bottom 목록 = `.seg--hero/.seg--resume/.seg--work` 의 `offsetTop`~`+offsetHeight`.
-- `onWheel`(passive:false):
-  - **현재 섹션이 뷰포트보다 크고 아직 더 스크롤할 여지**가 있으면 → `return`(네이티브 자유 스크롤 = 긴 이력 읽기).
-  - 그렇지 않으면(섹션 끝/뷰포트에 맞음) → `e.preventDefault()` + `animateTo(다음/이전 섹션 top)`.
-  - 따라서 **1P 에서 휠 다운 = 2P top 으로만 이동(캡)**, 한 제스처로 2→3 으로 못 넘어감.
-- `animateTo`: easeInOutCubic, `dur = min(720, 360 + |dist|·0.34)ms`. 전환 중(`animating || animatingRef.current`)엔 추가 휠 차단(끊김·오버슈트 방지).
+### 5-1. 데스크탑(wheel) — '한 제스처 = 최대 1섹션' 락 모델 ⭐ (재설계 2026-06-26)
+> ❌ 과거: 섹션 내부에서 **네이티브 스크롤을 허용**했는데 그 **관성이 경계 `animateTo` 와 충돌** →
+> 2→3 에서 위로 튕기고 3→2 가 미완료. 또 **빠른 스크롤 한 번에 여러 섹션(1→3) 건너뜀**.
+> → **항상 `preventDefault`(네이티브 스크롤 0)** + **휠 버스트당 1회만 이동하는 락**.
+- `onWheel`(passive:false): 매 휠마다 `tryUnlock()`(150ms 후 락 해제) 예약 → **휠이 멎어야** 락이 풀림(= 한 제스처 = 1회).
+  - `locked || animating || animatingRef.current` 이면 무시(이동 안 함).
+  - 아니면 한 번 이동: 현재 섹션이 **'내용상' 뷰포트보다 충분히 큼(>1.2vh)** 이면 그 안에서 한 스텝(`±0.9vh`), 아니면 **다음/이전 섹션 top 으로 한 페이지**(`animateTo`).
+  - 미세 초과(예: 이력 962px = 빈 패딩 62px)는 `tall` 아님 → **2↔3 은 항상 한 페이지 전환**(1→2, 2→3, 3→2, 2→1).
+- `animateTo`: easeInOutCubic, `dur = min(720, 360 + |dist|·0.34)ms`(부드러운 속도). 버튼(맨위로·안내)은 `wheelStopRef` 로 휠 애니/락을 먼저 해제(충돌 방지).
+- 검증(합성): 빠른 연타 8회도 **한 섹션만** 이동(1→3 건너뜀 없음), idle 후 다음 제스처에 다음 섹션 ✔.
 
 ### 5-2. 모바일(touch/drag) — 네이티브 스크롤 + 스크롤 종료 스냅 ⭐ (재설계 2026-06-26)
 > ❌ 과거(`touchmove` 에서 `preventDefault` + 직접 스크롤)는 **안드로이드 크롬에서 초기 작은 이동에 네이티브 스크롤이
