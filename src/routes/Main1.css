@@ -2097,68 +2097,167 @@
     transform: none;
   }
 }
-/* 헤드(키커 라인 + 고객사 + 타이틀 + 기간) */
+/* ── 헤더: 상단(고객사 + 상태 뱃지) → 타이틀 → 리드(요약) → 팩트 카드 ── */
 .wm__head {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+.wm__head-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wm__client {
+  display: flex;
+  align-items: center;
   gap: 10px;
+  margin: 0;
+  min-width: 0;
+  font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: #4c6b96;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .wm__kicker {
-  width: 46px;
+  flex: none;
+  width: 26px;
   height: 3px;
   border-radius: 2px;
   background: linear-gradient(90deg, #00aeff, #5566d8);
-  box-shadow: 0 0 14px rgba(0, 174, 255, 0.45);
+  box-shadow: 0 0 12px rgba(0, 174, 255, 0.45);
 }
-.wm__client {
-  margin: 2px 0 -2px;
+/* 상태 뱃지 — 운영 중=라이브(그린), 그 외=종료(그레이). 앞에 점 인디케이터. */
+.wm__status {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
   font-family: var(--mono, ui-monospace, Consolas, monospace);
   font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #5a7ba8;
+  letter-spacing: 0.03em;
+  color: #6d7a92;
+  background: rgba(20, 30, 50, 0.05);
+  border: 1px solid rgba(20, 30, 50, 0.12);
+  white-space: nowrap;
 }
-.wm__title {
-  margin: 0;
-  font-size: clamp(23px, 2.6vw, 34px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
-  color: #0d1626;
-}
-.wm__period {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0;
-  font-family: var(--mono, ui-monospace, Consolas, monospace);
-  font-variant-numeric: tabular-nums;
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  color: #6c7892;
-}
-.wm__period-dot {
+.wm__status::before {
+  content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #00aeff;
-  box-shadow: 0 0 8px rgba(0, 174, 255, 0.6);
+  background: #9aa6ba;
 }
-/* 성과/특이사항 콜아웃 — 좌측 액센트 바 + 옅은 틴트 */
-.wm__note {
+.wm__status.is-live {
+  color: #1f8a5b;
+  background: rgba(31, 176, 122, 0.1);
+  border-color: rgba(31, 176, 122, 0.3);
+}
+.wm__status.is-live::before {
+  background: #1fb07a;
+  box-shadow: 0 0 8px rgba(31, 176, 122, 0.6);
+}
+.wm__title {
   margin: 0;
-  padding: 13px 16px;
+  font-size: clamp(21px, 2.05vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+  color: #0d1626;
+}
+/* 리드 — 한 줄 요약(본문 sans 통일, 약간 진한 그레이) */
+.wm__lead {
+  margin: 0;
+  font-size: clamp(14px, 1.15vw, 16px);
+  font-weight: 500;
+  line-height: 1.6;
+  color: #3c4a63;
+}
+/* 팩트 카드 — 기간·담당·인원 3분할. 1px gap+배경으로 얇은 구분선. */
+.wm__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  margin-top: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(20, 30, 50, 0.1);
+  border: 1px solid rgba(20, 30, 50, 0.1);
+}
+.wm__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 15px;
+  background: #f6f9fd;
+}
+.wm__fact-k {
+  font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8492ab;
+}
+.wm__fact-v {
+  font-size: clamp(13px, 1vw, 14px);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.35;
+  color: #1a2740;
+}
+/* 성과/특이사항 콜아웃 — 좌측 마크 + 옅은 틴트 */
+.wm__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0;
+  padding: 14px 16px;
   font-size: clamp(13px, 1.05vw, 14.5px);
   line-height: 1.6;
   font-weight: 500;
   color: #1c3350;
   background: linear-gradient(90deg, rgba(0, 174, 255, 0.12), rgba(85, 102, 216, 0.06));
+  border: 1px solid rgba(0, 174, 255, 0.18);
   border-left: 3px solid #00aeff;
-  border-radius: 0 10px 10px 0;
+  border-radius: 4px 12px 12px 4px;
+}
+.wm__note-mark {
+  flex: none;
+  margin-top: 0.32em;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, #00aeff, #5566d8);
 }
 .wm__section {
   display: flex;
   flex-direction: column;
+}
+/* 섹션 헤더 — 앞에 짧은 액센트 라인(mono, 영문 대문자) */
+.wm__h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-family: var(--mono, ui-monospace, Consolas, monospace);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #55658a;
+}
+.wm__h::before {
+  content: '';
+  width: 22px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #00aeff, rgba(85, 102, 216, 0.4));
 }
 /* 소개·기능 불릿 리스트 — 커스텀 마커(다이아/도트) */
 .wm__list {
@@ -2167,7 +2266,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
 }
 .wm__list li {
   position: relative;
@@ -2191,25 +2290,6 @@
   border-radius: 50%;
   transform: none;
   background: #9fb2cc;
-}
-/* 섹션 헤더 — 앞에 짧은 액센트 라인(— Overview 느낌) */
-.wm__h {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 14px;
-  font-family: var(--mono, ui-monospace, Consolas, monospace);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #55658a;
-}
-.wm__h::before {
-  content: '';
-  width: 22px;
-  height: 1.5px;
-  border-radius: 1px;
-  background: linear-gradient(90deg, #00aeff, rgba(85, 102, 216, 0.4));
 }
 .wm__tags {
   display: flex;
@@ -2236,51 +2316,40 @@
     box-shadow: 0 8px 18px -10px rgba(0, 130, 210, 0.6);
   }
 }
-/* 상세 정보(담당/개발 인원/현황/링크) — 라벨·값 2열 로우, 행마다 옅은 구분선 */
-.wm__rows {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-}
-.wm__row {
-  display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 14px;
-  padding: 11px 0;
-  align-items: baseline;
-}
-.wm__row + .wm__row {
-  border-top: 1px solid rgba(20, 30, 50, 0.08);
-}
-.wm__row-k {
-  font-family: var(--mono, ui-monospace, Consolas, monospace);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: #8492ab;
-}
-.wm__row-v {
-  margin: 0;
-  font-size: clamp(13.5px, 1.1vw, 15px);
-  line-height: 1.5;
-  color: #24344d;
-}
+/* 링크 — 버튼형 pill(화살표 아이콘). */
 .wm__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: 9px;
 }
 .wm__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
   font-family: var(--mono, ui-monospace, Consolas, monospace);
-  font-size: 13px;
+  font-size: 12.5px;
   color: #1f7fd0;
   text-decoration: none;
-  border-bottom: 1px solid rgba(31, 127, 208, 0.32);
-  transition: color 0.2s ease, border-color 0.2s ease;
+  background: rgba(0, 174, 255, 0.07);
+  border: 1px solid rgba(0, 174, 255, 0.28);
+  border-radius: 9px;
+  transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.wm__link-arrow {
+  font-size: 13px;
+  line-height: 1;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (hover: hover) {
   .wm__link:hover {
     color: #0b62b0;
-    border-color: #0b62b0;
+    background: rgba(0, 174, 255, 0.14);
+    border-color: rgba(0, 174, 255, 0.5);
+  }
+  .wm__link:hover .wm__link-arrow {
+    transform: translate(2px, -2px);
   }
 }
 .wm__panel[data-tone='a'] {
@@ -2321,11 +2390,15 @@
     aspect-ratio: 3 / 2;
   }
   .wm__title {
-    font-size: clamp(26px, 7vw, 34px);
+    font-size: clamp(22px, 6vw, 28px);
   }
   .wm__body {
     gap: 22px;
-    padding: clamp(24px, 6vw, 34px);
+    padding: clamp(22px, 5.5vw, 30px);
+  }
+  /* 좁은 화면에서 팩트 카드는 세로 스택(구분선은 가로) */
+  .wm__facts {
+    grid-template-columns: 1fr;
   }
 }
 @keyframes wmSlideUp {

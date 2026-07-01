@@ -890,18 +890,43 @@ function WorkModal({ project, onClose }: { project: Project; onClose: () => void
             <span className="wm__num">{project.idx}</span>
           </div>
         ) : null}
-        {/* 본문 — 직계 자식이 순차(스태거) 라이즈. head → overview → features → stack → details 순. */}
+        {/* 본문 — 직계 자식이 순차(스태거) 라이즈. header → note → overview → features → stack → details 순. */}
         <div className="wm__body">
-          <div className="wm__head">
-            <span className="wm__kicker" aria-hidden="true" />
-            <p className="wm__client">{project.client}</p>
+          <header className="wm__head">
+            <div className="wm__head-top">
+              <p className="wm__client">
+                <span className="wm__kicker" aria-hidden="true" />
+                {project.client}
+              </p>
+              <span
+                className={`wm__status${project.status.includes('운영') ? ' is-live' : ''}`}
+              >
+                {project.status}
+              </span>
+            </div>
             <h3 className="wm__title">{project.name}</h3>
-            <p className="wm__period">
-              <span className="wm__period-dot" aria-hidden="true" />
-              {project.period}
+            <p className="wm__lead">{project.summary}</p>
+            <div className="wm__facts">
+              <span className="wm__fact">
+                <span className="wm__fact-k">기간</span>
+                <span className="wm__fact-v">{project.period}</span>
+              </span>
+              <span className="wm__fact">
+                <span className="wm__fact-k">담당</span>
+                <span className="wm__fact-v">{project.role}</span>
+              </span>
+              <span className="wm__fact">
+                <span className="wm__fact-k">인원</span>
+                <span className="wm__fact-v">{project.team}</span>
+              </span>
+            </div>
+          </header>
+          {project.note ? (
+            <p className="wm__note">
+              <span className="wm__note-mark" aria-hidden="true" />
+              {project.note}
             </p>
-          </div>
-          {project.note ? <p className="wm__note">{project.note}</p> : null}
+          ) : null}
           <section className="wm__section">
             <h4 className="wm__h">Overview</h4>
             <ul className="wm__list">
@@ -928,41 +953,27 @@ function WorkModal({ project, onClose }: { project: Project; onClose: () => void
               ))}
             </div>
           </section>
-          <section className="wm__section">
-            <h4 className="wm__h">Details</h4>
-            <dl className="wm__rows">
-              <div className="wm__row">
-                <dt className="wm__row-k">담당</dt>
-                <dd className="wm__row-v">{project.role}</dd>
+          {project.links && project.links.length ? (
+            <section className="wm__section">
+              <h4 className="wm__h">Links</h4>
+              <div className="wm__links">
+                {project.links.map((l) => (
+                  <a
+                    key={l.url}
+                    className="wm__link"
+                    href={l.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {l.label}
+                    <span className="wm__link-arrow" aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                ))}
               </div>
-              <div className="wm__row">
-                <dt className="wm__row-k">개발 인원</dt>
-                <dd className="wm__row-v">{project.team}</dd>
-              </div>
-              <div className="wm__row">
-                <dt className="wm__row-k">서비스 현황</dt>
-                <dd className="wm__row-v">{project.status}</dd>
-              </div>
-              {project.links && project.links.length ? (
-                <div className="wm__row">
-                  <dt className="wm__row-k">링크</dt>
-                  <dd className="wm__row-v wm__links">
-                    {project.links.map((l) => (
-                      <a
-                        key={l.url}
-                        className="wm__link"
-                        href={l.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {l.label}&nbsp;↗
-                      </a>
-                    ))}
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
+            </section>
+          ) : null}
         </div>
       </div>
     </div>
