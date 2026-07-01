@@ -69,15 +69,19 @@
 - **고급화 디자인·인터랙션(2026-07-01)** — `document.body` portal 이라 `--p`/`--inv` 미상속 → 자체 라이트 테마로 고정.
   - **패널**: 그라디언트 배경(`#fff→#eef2f9`)·22px 라운드·이중 그림자, 상단을 가로지르는 **그라디언트 액센트 라인**(`::before`, 블루→인디고, 양끝 페이드), 스크롤바 숨김.
   - **커버 포스터(현재 비활성)**: 실이미지가 없어 `hasImage:false` → 모달도 커버 없이 본문만 표시(`data-noimg` → 상단 여백 확대 + **닫기 버튼 밝은 배경용 재스타일**). 커버 CSS(켄번스 줌 `wmArt`·스크림·글래스 role 태그·대형 인덱스)는 이미지 확보 시 재사용 위해 유지.
-  - **본문(레이아웃 재구성, 2026-07-02)**: 직계 자식(header → note? → Overview → Key Features → Tech Stack → Links?)이 **순차 라이즈 스태거**(`wmRise`, nth-child 1~6 지연).
-    - **header**: `head-top`(고객사 `wm__client` + **상태 뱃지 `wm__status`**, `justify-content:space-between`) → **타이틀**(축소 `clamp(21px,2.05vw,28px)`) → **리드 `wm__lead`**(= `summary` 요약, 신규) → **팩트 카드 `wm__facts`**(기간·담당·인원 3분할, 1px gap+배경 구분선).
-    - **상태 뱃지**: `status.includes('운영')` → `is-live`(그린 점·틴트), 그 외 회색 점(종료).
-    - **note 콜아웃**(선택): 좌측 다이아 마크(`wm__note-mark`) + 옅은 틴트 — 성과/특이사항 강조.
+  - **본문 레이아웃(2026-07-02, 이전 구조 복원 + 리드 추가)**: 직계 자식(head → note? → Overview → Key Features → Tech Stack → Details)이 **순차 라이즈 스태거**(`wmRise`, nth-child 1~6 지연).
+    - **head**: 키커 바(`wm__kicker`) + **고객사 `wm__client`** + **타이틀**(`clamp(21px,2.05vw,28px)`) + **기간 `wm__period`**(점 인디케이터) + **리드 `wm__lead`**(= `summary` 요약, 신규).
+    - **note 콜아웃**(선택): 좌측 액센트 바 + 옅은 틴트 — 성과/특이사항 강조.
     - **Overview / Key Features**: `wm__list` 불릿(소개=다이아 마커, 기능=도트 마커).
-    - **Tech Stack**: 칩(hover 리프트). **Links**: 버튼형 pill(화살표 hover 슬라이드, `target=_blank rel=noopener`).
-    - 섹션 헤더 `wm__h` 앞 **짧은 액센트 라인**(`::before`).
-  - ⭐ **폰트 통일 규칙(2026-07-02)**: **영문 라벨·기술 텍스트(섹션 헤더 OVERVIEW…·칩·링크·팩트 라벨)만 mono**, **한글·본문(타이틀·리드·불릿·값)은 sans**. 한글에는 **`text-transform:uppercase`·와이드 트래킹 금지**(고객사 라벨이 자간 벌어져 보이던 문제 해소 — mono·정상 자간). 이전 `Details` 2열 로우(`wm__rows`) → 헤더 팩트 카드 + 별도 Links 섹션으로 대체.
-  - **반응형**: PC = 중앙 다이얼로그(`min(720px)`), **≤768 = 전체화면**(하단 슬라이드 업 `wmSlideUp`·타이틀/여백 축소·**팩트 카드 세로 스택**). `data-noimg`(커버 비활성)는 본문 상단 여백 확대 + 닫기 버튼 밝은 배경용.
+    - **Tech Stack**: 칩. **Details**: 담당/개발 인원/서비스 현황/링크 = `wm__rows` key/value 행.
+    - _한때(43ffa31) 헤더 팩트 카드·상태 뱃지·Links 섹션으로 재구성했으나 **이전 레이아웃이 낫다는 피드백으로 롤백**._
+  - ⭐ **2P(resume) 디자인 언어 통일(2026-07-02)** — 사이트 전역 UI 일관성:
+    - **섹션 헤더 `wm__h`** = `resume__h`(세로 그라디언트 바 `::before` + mono 12.5px/700/`0.14em`/uppercase/`#6b7b97`).
+    - **기술 칩 `wm__chip`** = `resume__skill`(mono pill `999px`·`rgba(0,130,220,.08)` bg·`.2` border·`#29405f`).
+    - **Details 행 `wm__rows/row`** = `resume__contact`(key/value + 하단 헤어라인 `#e1e6f0`, key=`resume__k` mono uppercase `#93a0ba`).
+    - **버튼(링크 `wm__link`·타임라인 `tl-item__view`)** = skill pill 언어(mono·`999px`·같은 블루) + **상호작용**(호버 bg/border 강조·링크 화살표 슬라이드).
+  - ⭐ **폰트 통일**: **영문 라벨·기술 텍스트(섹션 헤더·칩·링크·행 라벨)만 mono**, **한글·본문(타이틀·리드·불릿·값)은 sans**. 한글에 **uppercase·와이드 트래킹 금지**(고객사 라벨 자간 벌어짐 해소).
+  - **반응형**: PC = 중앙 다이얼로그(`min(720px)`), **≤768 = 전체화면**(하단 슬라이드 업 `wmSlideUp`·타이틀/여백 축소). `data-noimg`(커버 비활성)는 본문 상단 여백 확대 + 닫기 버튼 밝은 배경용.
   - **접근성**: `reduced-motion` 이면 팝·슬라이드·켄번스·스태거 **전부 정지**(정적 표시).
 
 ## 5. ⚠️ animateTo 워치독 — 모달 blur 가 휠 스크롤을 '죽이던' 버그 (2026-07-01)
