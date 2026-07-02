@@ -2332,7 +2332,9 @@
 }
 .wg__track {
   display: flex;
-  aspect-ratio: 16 / 10;
+  /* 크롭 대신 전체 이미지를 축소해서 보여주므로(contain) 고정 높이 프레임 사용
+     — 세로(모바일) 스샷도 잘리지 않고 전체가 보이도록. */
+  height: clamp(320px, 52vh, 460px);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -2355,10 +2357,12 @@
   overflow: hidden;
 }
 .wg__slide img {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top center; /* 세로(모바일) 스샷은 상단 위주로 대략 크롭 */
+  object-fit: contain; /* 크롭 없이 전체 이미지 축소 표시(레터박스) */
+  object-position: center;
+  padding: 10px;
   display: block;
   -webkit-user-drag: none;
   user-select: none;

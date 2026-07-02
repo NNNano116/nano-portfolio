@@ -92,7 +92,7 @@
   - ⭐ **상세 모달 전체 sans 통일(2026-07-02, 최종)**: 사용자 요청 — **상세(모달) 전체를 요약 문구(`.tl-item__desc`) 폰트(sans)로 통일**. 모달 내 남아있던 mono(섹션 헤더 `wm__h`·칩 `wm__chip`·링크 `wm__link`)를 **전부 sans 로 전환**(섹션 헤더는 uppercase 라벨 스타일만 유지). → **모달에는 mono 텍스트 없음**. (예외: 커버 포스터 `wm__cover-tag`·`wm__num` 은 `hasImage:false` 라 현재 미표시 → 그대로 둠.) ※ **타임라인(3P 리스트)의 스택 칩 `.tl-chip` 등 영문 토큰은 여전히 mono**(모달만 전체 sans).
   - ⭐ **이미지 갤러리 + 원본 라이트박스(`WorkGallery`·`Lightbox`, 2026-07-02)** — head/note 다음 `Gallery` 섹션(이미지 있는 프로젝트만).
     - **슬라이더 `.wg`**: `scroll-snap-type:x mandatory` 트랙 + 슬라이드 100%폭. **모바일 네이티브 스와이프** + PC **좌우 화살표·도트·`n/total` 카운터**(단일 이미지면 `wg--single` 로 컨트롤 숨김). `onScroll` 로 active 도트 동기화, 버튼은 `scrollTo({behavior:smooth})`(reduced-motion 이면 auto).
-    - **대략 크롭**: 슬라이드 프레임 `aspect-ratio:16/10` + `object-fit:cover; object-position:top center` → 세로(모바일) 스샷도 상단 위주로 컴팩트하게. 영역 과점유 방지.
+    - **전체 표시(크롭 X, 2026-07-02)**: 슬라이드 고정 높이 프레임 `height:clamp(320px,52vh,460px)` + `object-fit:contain`(레터박스) → 가로/세로(모바일) 스샷 모두 **잘리지 않고 전체가 보이도록 축소**(초기 cover 크롭이 항목별로 어색해 contain 으로 변경). 영역 과점유 방지.
     - **원본 확인**: 슬라이드 클릭 → `Lightbox`(`document.body` portal, `z-index:1100`) 전체 이미지 `object-fit:contain` + 좌우 이동·ESC·백드롭·`◀▶` 카운터. 모달 ESC 는 `lbRef` 가드로 **라이트박스가 열려있으면 모달이 안 닫힘**(라이트박스 우선).
     - 표시 이미지는 **리사이즈 webp**(≤1366px) — '원본'도 이 최적화본(전체 화면 표시)이라 사이트 경량 유지.
   - **반응형**: PC = 중앙 다이얼로그(`min(720px)`), **≤768 = 전체화면**(하단 슬라이드 업 `wmSlideUp`·타이틀/여백 축소). `data-noimg`(커버 비활성)는 본문 상단 여백 확대 + 닫기 버튼 밝은 배경용.
