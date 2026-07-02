@@ -80,11 +80,11 @@
     - **Tech Stack**: 칩. **Details**: 담당/개발 인원/서비스 현황/링크 = `wm__rows` key/value 행.
     - _한때(43ffa31) 헤더 팩트 카드·상태 뱃지·Links 섹션으로 재구성했으나 **이전 레이아웃이 낫다는 피드백으로 롤백**._
   - ⭐ **2P(resume) 디자인 언어 통일(2026-07-02)** — 사이트 전역 UI 일관성:
-    - **섹션 헤더 `wm__h`** = `resume__h`(세로 그라디언트 바 `::before` + mono 12.5px/700/`0.14em`/uppercase/`#6b7b97`).
-    - **기술 칩 `wm__chip`** = `resume__skill`(mono pill `999px`·`rgba(0,130,220,.08)` bg·`.2` border·`#29405f`).
-    - **Details 행 `wm__rows/row`** = `resume__contact`(key/value + 하단 헤어라인 `#e1e6f0`, key=`resume__k` mono uppercase `#93a0ba`).
-    - **버튼(링크 `wm__link`·타임라인 `tl-item__view`)** = skill pill 언어(mono·`999px`·같은 블루) + **상호작용**(호버 bg/border 강조·링크 화살표 슬라이드).
-  - ⭐ **폰트 통일**: **영문 라벨·기술 텍스트(섹션 헤더·칩·링크·행 라벨)만 mono**, **한글·본문(타이틀·리드·불릿·값)은 sans**. 한글에 **uppercase·와이드 트래킹 금지**(고객사 라벨 자간 벌어짐 해소).
+    - **섹션 헤더 `wm__h`** = 세로 그라디언트 바 `::before` + 라벨(12.5px/700/`0.12em`/uppercase/`#6b7b97`).
+    - **기술 칩 `wm__chip`** = pill `999px`·`rgba(0,130,220,.08)` bg·`.2` border·`#29405f`.
+    - **Details 행 `wm__rows/row`** = `resume__contact`(key/value + 하단 헤어라인 `#e1e6f0`, key `#93a0ba`).
+    - **버튼(링크 `wm__link`·타임라인 `tl-item__view`)** = skill pill 언어(`999px`·같은 블루) + **상호작용**(호버 bg/border 강조·링크 화살표 슬라이드).
+  - ⭐ **상세 모달 전체 sans 통일(2026-07-02, 최종)**: 사용자 요청 — **상세(모달) 전체를 요약 문구(`.tl-item__desc`) 폰트(sans)로 통일**. 모달 내 남아있던 mono(섹션 헤더 `wm__h`·칩 `wm__chip`·링크 `wm__link`)를 **전부 sans 로 전환**(섹션 헤더는 uppercase 라벨 스타일만 유지). → **모달에는 mono 텍스트 없음**. (예외: 커버 포스터 `wm__cover-tag`·`wm__num` 은 `hasImage:false` 라 현재 미표시 → 그대로 둠.) ※ **타임라인(3P 리스트)의 스택 칩 `.tl-chip` 등 영문 토큰은 여전히 mono**(모달만 전체 sans).
   - **반응형**: PC = 중앙 다이얼로그(`min(720px)`), **≤768 = 전체화면**(하단 슬라이드 업 `wmSlideUp`·타이틀/여백 축소). `data-noimg`(커버 비활성)는 본문 상단 여백 확대 + 닫기 버튼 밝은 배경용.
   - **접근성**: `reduced-motion` 이면 팝·슬라이드·켄번스·스태거 **전부 정지**(정적 표시).
 

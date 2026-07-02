@@ -2165,15 +2165,14 @@
   display: flex;
   flex-direction: column;
 }
-/* 섹션 헤더 — 2P(resume__h)와 통일: 세로 그라디언트 바 + mono·대문자 */
+/* 섹션 헤더 — 세로 그라디언트 바 + 라벨(sans, 상세 전체 폰트 통일 위해 mono 제거) */
 .wm__h {
   position: relative;
   margin: 0 0 0.85em;
   padding-left: 14px;
-  font-family: var(--mono, ui-monospace, Consolas, monospace);
   font-size: 12.5px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #6b7b97;
 }
@@ -2219,15 +2218,15 @@
   transform: none;
   background: #9fb2cc;
 }
-/* 기술 스택 칩 — 2P(resume__skill)와 통일: mono pill, 같은 색 */
+/* 기술 스택 칩 — pill(상세 전체 폰트 통일 위해 sans) */
 .wm__tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 .wm__chip {
-  font-family: var(--mono, ui-monospace, Consolas, monospace);
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
   color: #29405f;
   background: rgba(0, 130, 220, 0.08);
   border: 1px solid rgba(0, 130, 220, 0.2);
@@ -2280,8 +2279,8 @@
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  font-family: var(--mono, ui-monospace, Consolas, monospace);
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
   color: #1470c4;
   text-decoration: none;
   background: rgba(0, 130, 220, 0.08);
