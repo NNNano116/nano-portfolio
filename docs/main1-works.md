@@ -32,7 +32,9 @@
 
 - **접힌 바 = 프로젝트명만**(2026-07-01): idx + **타이틀**(+ 토글 chevron)만 노출. 기간·담당·고객사는 펼침 메타로 이동(스캔 가독성). 타이틀은 대비·크기 상향(`clamp(16,1.7vw,25px)`·weight 700).
 - **펼침(펴짐)**: 바 클릭 = 선택/토글. 열린 프로젝트는 React state `active`(idx)로 **단일 소유**. 패널은 `grid-template-rows 0fr→1fr`(`.tl-item.is-open`)로 높이 애니메이션(clip). (커버 비활성이라) 좌측 액센트 quote 블록(`.is-noimg`)에 **메타(기간·담당·고객사) → 한 줄 소개 → 핵심 기능 3개 불릿 → 스택 칩 → 현황 뱃지 + View** 를 전개(초기 노출 정보 보강).
-  - **현황 뱃지(`.tl-item__status`) 폰트 통일(2026-07-02)**: mono·muted → **요약 문구(`.tl-item__desc`)와 동일**하게 sans(본문 상속)·`color-mix(#e8eef8,#2c3852 var(--p))`·`weight 500`·`letter-spacing 0`. pill 배경/테두리는 유지.
+  - **폰트 통일 — 한글/라벨은 sans, 영문 기술 토큰만 mono(2026-07-02)**: 한글이 mono 로 렌더돼 UI 와 겉돌던 문제 → **sans(요약 `.tl-item__desc` 기준: `color-mix(#e8eef8,#2c3852 var(--p))`·`weight 500`·`자간 0`)** 로 통일.
+    - 전환(mono→sans): **메타 라인 `.tl-item__meta`**(기간·담당·고객사, uppercase·와이드 트래킹 제거) · **현황 뱃지 `.tl-item__status`** · (모달) `.wm__client`·`.wm__period`·`.wm__row-k`(담당/개발 인원/… 한글 라벨).
+    - **mono 유지**(영문·기술·숫자 → 2P `resume__skill` 언어와 일관): 스택 칩 `.tl-chip`/`.wm__chip` · 섹션 헤더 `.wm__h`(OVERVIEW…) · 링크 `.wm__link`(URL) · 연도/번호 `.tl-year__label`·`.tl-item__idx` · `.tl-year__meta`(5 PROJECTS).
   - **View 버튼(`.tl-item__view`)**: 2P skill pill 언어와 통일(mono·`999px`·동일 블루 계열, `--p` 다크↔라이트 적응) + 호버 강조(§4).
 - **토글 인디케이터(`.tl-item__chev`)**: 원형 버튼 안 chevron(⌄). 열림 시 **원이 180° 회전(⌃)** + 악센트 링/점등(과거 `+/−` 의 '−' 가 맨대시처럼 보이던 문제 → chevron 으로 교체, 2026-07-01).
 - **정렬**: 년도 내림차순 그룹 + 년도 내 `idx` 내림차순(최신 달 위) → 최상단이 커리어 최신. 자동 펼침은 최신(최상단) 항목.
